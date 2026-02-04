@@ -1,0 +1,58 @@
+version: '3.5'
+
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    container_name: laravel-app-${PROJECT}
+    volumes:
+      - ./src:/usr/local/apache2/htdocs
+    restart: unless-stopped
+    hostname: ${PROJECT}-app-laravel
+    networks:
+      - ${RED}
+  apache:
+    image: httpd:2.4.66
+    container_name: apache2-${PROJECT}
+    ports:
+      - '8000:80'
+    volumes:
+      - ./docker/apache2/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./docker/apache2/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./src:/usr/local/apache2/htdocs
+    restart: unless-stopped
+    hostname: ${PROJECT}-apache2
+    networks:
+      - ${RED}
+  database:
+    image: mysql:8.4.7
+    container_name: mysql-${PROJECT}
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_root_password
+      - db_password
+    ports:
+      - '3333:3306'
+    volumes:
+      - ${DB_PATH}:/var/lib/mysql 
+      - ./docker/mysql/init-db:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    hostname: mysql_external_users
+    networks:
+      - ${RED}
+
+networks:
+  develop:
+    external: true
+
+secrets:
+  db_root_password:
+    file: docker/.secrets/db_root_password
+  db_password:
+    file: docker/.secrets/db_password
+

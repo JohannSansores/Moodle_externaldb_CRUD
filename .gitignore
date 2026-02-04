@@ -1,0 +1,5 @@
+/src/.env
+/docker/.secrets/
+node_modules/
+vendor/
+.env
