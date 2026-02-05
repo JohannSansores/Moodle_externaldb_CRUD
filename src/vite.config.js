@@ -1,15 +1,16 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
+import { defineConfig } from 'vite'
+import laravel from 'laravel-vite-plugin'
 
 export default defineConfig({
+    base: '/admin-users/',
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+            ],
+            publicDirectory: 'public',
         }),
     ],
-    server: {
-        host: '0.0.0.0', // important for Docker / VM
-        port: 8000,      // 👈 your custom port
-    },
-});
+})
+
