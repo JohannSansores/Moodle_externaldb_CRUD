@@ -28,4 +28,4 @@ chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
 # 8. Finally, run the main command (PHP-FPM or artisan serve)
-exec "$@"
+exec php-fpm
