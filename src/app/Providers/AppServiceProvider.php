@@ -7,27 +7,25 @@ use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // Force root URL for reverse proxy subfolder
-        if (config('app.url')) {
-            URL::forceRootUrl(config('app.url'));
-        }
+        // Force Laravel to generate URLs with /admin-users prefix exactly once
+        URL::forceRootUrl(config('app.url'));
 
-        // Optional: if you have HTTPS in production
-        if (request()->header('X-Forwarded-Proto') == 'https') {
+        // Optional if using HTTPS
+        if (request()->header('X-Forwarded-Proto') === 'https') {
             URL::forceScheme('https');
         }
+        //
+        //URL::forceRootUrl(config('app.url'));
+
+        //if (request()->header('X-Forwarded-Proto') === 'https') {
+          //  URL::forceScheme('https');
+        //}
     }
 }
