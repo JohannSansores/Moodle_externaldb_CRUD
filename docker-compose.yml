@@ -6,8 +6,10 @@ services:
       context: .
       dockerfile: ./docker/php/Dockerfile
     container_name: laravel-app-${PROJECT}
+    entrypoint: ["/docker-entrypoint.sh"]
     volumes:
       - ./src:/usr/local/apache2/htdocs
+      - ./docker/php/docker-entrypoint.sh:/docker-entrypoint.sh:ro
     restart: unless-stopped
     hostname: ${PROJECT}-app-laravel
     networks:

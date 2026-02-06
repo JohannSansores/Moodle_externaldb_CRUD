@@ -20,8 +20,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force root URL for reverse proxy subfolder
         if (config('app.url')) {
-        	URL::forceRootUrl(config('app.url'));
-    	}
+            URL::forceRootUrl(config('app.url'));
+        }
+
+        // Optional: if you have HTTPS in production
+        if (request()->header('X-Forwarded-Proto') == 'https') {
+            URL::forceScheme('https');
+        }
     }
 }

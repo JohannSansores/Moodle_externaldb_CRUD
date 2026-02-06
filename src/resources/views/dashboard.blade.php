@@ -20,15 +20,31 @@
 
                 {{-- Counter + Create --}}
                 <div class="flex flex-wrap items-center justify-between gap-4">
+
                     <div class="text-gray-900 dark:text-gray-100">
                         <strong>{{ $usersNumber }}</strong> usuario(s) registrados
                     </div>
 
-                    <a href="{{ route('external-users.create') }}"
-                       class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm
-                              bg-blue-600 text-white hover:bg-blue-700">
-                        ➕ Crear usuario
-                    </a>
+                    <div class="flex gap-2">
+                        {{-- Create External User --}}
+                        <a href="{{ route('external-users.create') }}"
+                           class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm
+                                  bg-blue-600 text-white hover:bg-blue-700">
+                            ➕ Crear usuario
+                        </a>
+
+                        {{-- Superadmin: Manage Admin Users --}}
+                        @auth
+                            @if(auth()->user()->role === 'superadmin')
+                                <a href="{{ route('admins.index') }}"
+                                   class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm
+                                          bg-green-600 text-white hover:bg-green-700">
+                                    👑 Administrar Admins
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
+
                 </div>
 
                 {{-- Catalog management --}}
@@ -38,6 +54,7 @@
                     <a href="{{ route('catalogs.show', 'roles') }}" class="catalog-btn">👤 Roles</a>
                     <a href="{{ route('catalogs.show', 'semestres') }}" class="catalog-btn">📅 Semestres</a>
                 </div>
+
             </div>
 
             {{-- Users table --}}
