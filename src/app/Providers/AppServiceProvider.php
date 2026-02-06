@@ -21,6 +21,16 @@ class AppServiceProvider extends ServiceProvider
         if (request()->header('X-Forwarded-Proto') === 'https') {
             URL::forceScheme('https');
         }
+
+                // Force HTTPS in production
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+
+        // Force root URL only if APP_URL is set (works for local subfolder too)
+        if (config('app.url')) {
+            URL::forceRootUrl(config('app.url'));
+        }
         //
         //URL::forceRootUrl(config('app.url'));
 
