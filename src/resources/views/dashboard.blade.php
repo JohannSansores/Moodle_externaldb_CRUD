@@ -15,6 +15,18 @@
                 </div>
             @endif
 
+            {{-- Errores de importación CSV --}}
+            @if (session('import_errors') && count(session('import_errors')) > 0)
+                <div class="mb-4 rounded bg-yellow-50 border border-yellow-200 px-4 py-3">
+                    <p class="font-semibold text-yellow-800 mb-2">⚠️ Algunas filas no pudieron importarse:</p>
+                    <ul class="list-disc list-inside text-sm text-yellow-700 space-y-1">
+                        @foreach (session('import_errors') as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- Top bar --}}
             <div class="mb-6 space-y-4">
 
@@ -31,6 +43,13 @@
                            class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm
                                   bg-blue-600 text-white hover:bg-blue-700">
                             ➕ Crear usuario
+                        </a>
+
+                        {{-- Import CSV --}}
+                        <a href="{{ route('external-users.import.form') }}"
+                           class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm
+                                  bg-indigo-600 text-white hover:bg-indigo-700">
+                            📤 Importar CSV
                         </a>
 
                         {{-- Superadmin: Manage Admin Users --}}
@@ -120,6 +139,13 @@
                     </table>
                 </div>
             </div>
+
+            {{-- Paginación --}}
+            @if ($users->hasPages())
+                <div class="mt-4">
+                    {{ $users->links() }}
+                </div>
+            @endif
 
         </div>
     </div>

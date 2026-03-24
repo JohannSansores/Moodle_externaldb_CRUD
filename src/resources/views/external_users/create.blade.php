@@ -61,7 +61,7 @@
 
                         {{-- Email --}}
                         <div class="mb-3">
-                            <label class="block font-medium">Email</label>
+                            <label class="block font-medium">Correo electrónico</label>
                             <input type="email" name="email" value="{{ old('email') }}"
                                 class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
                                 required>

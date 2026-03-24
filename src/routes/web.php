@@ -19,6 +19,12 @@ Route::middleware(['auth', 'superadmin'])->group(function () {
 // Admin & Superadmin routes (CRUD)
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [ExternalUserController::class, 'index'])->name('dashboard');
+
+    // Rutas de importación deben ir ANTES del resource para evitar conflicto con {external_user}
+    Route::get('/external-users/import/form', [ExternalUserController::class, 'importForm'])->name('external-users.import.form');
+    Route::get('/external-users/import/template', [ExternalUserController::class, 'importTemplate'])->name('external-users.import.template');
+    Route::post('/external-users/import', [ExternalUserController::class, 'import'])->name('external-users.import');
+
     Route::resource('external-users', ExternalUserController::class)->except(['index', 'show']);
 
     Route::prefix('catalogs')->group(function () {

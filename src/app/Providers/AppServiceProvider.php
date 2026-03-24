@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,22 +15,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::defaultView('vendor.pagination.custom');
+
         // Force Laravel to generate URLs with /admin-users prefix exactly once
         URL::forceRootUrl(config('app.url'));
 
         // Optional if using HTTPS
         if (request()->header('X-Forwarded-Proto') === 'https') {
             URL::forceScheme('https');
-        }
-
-                // Force HTTPS in production
-        if (app()->environment('production')) {
-            URL::forceScheme('https');
-        }
-
-        // Force root URL only if APP_URL is set (works for local subfolder too)
-        if (config('app.url')) {
-            URL::forceRootUrl(config('app.url'));
         }
         //
         //URL::forceRootUrl(config('app.url'));
