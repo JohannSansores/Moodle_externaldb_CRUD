@@ -46,15 +46,22 @@ CREATE TABLE cat_semestres (
 
 CREATE TABLE usuarios_externos (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
   username VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
+
   firstname VARCHAR(100) NOT NULL,
   lastname VARCHAR(100) NOT NULL,
-  email VARCHAR(150) NOT NULL,
+
+  email VARCHAR(150) NOT NULL UNIQUE,
+
+  curp VARCHAR(18) NULL UNIQUE,
+
   id_dependencia INT NOT NULL,
   id_programa INT NOT NULL,
   id_rol INT NOT NULL,
   id_semestre INT NOT NULL,
+
   fechacreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_dependencia FOREIGN KEY (id_dependencia) REFERENCES cat_dependencias(id),
@@ -124,6 +131,7 @@ INSERT INTO cat_semestres (nombre) VALUES
 -- DATA: PROGRAMAS
 -- =====================
 
+-- (sin cambios, lo dejo igual que tú)
 INSERT INTO cat_programas (nombre) VALUES
 ('No Aplica'),
 ('LICENCIATURA EN ARQUITECTURA'),
@@ -197,6 +205,7 @@ SELECT
   u.firstname,
   u.lastname,
   u.email,
+  u.curp,
   d.nombre AS dependencia,
   p.nombre AS programa,
   r.nombre AS rol,
@@ -208,4 +217,3 @@ JOIN cat_roles r ON r.id = u.id_rol
 JOIN cat_semestres s ON s.id = u.id_semestre;
 
 SET FOREIGN_KEY_CHECKS = 1;
-

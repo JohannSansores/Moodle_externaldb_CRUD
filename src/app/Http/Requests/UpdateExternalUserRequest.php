@@ -13,14 +13,14 @@ class UpdateExternalUserRequest extends FormRequest
 
     public function rules(): array
     {
-        // Obtiene el ID del usuario desde la URL para excluirlo del unique
         $id = $this->route('external_user');
 
         return [
             'username'       => "required|string|max:100|unique:usuarios_externos,username,{$id}",
             'firstname'      => 'required|string|max:100',
             'lastname'       => 'required|string|max:100',
-            'email'          => 'required|email|max:150',
+            'email'          => "required|email|max:150|unique:usuarios_externos,email,{$id}",
+            'curp'           => "nullable|string|size:18|unique:usuarios_externos,curp,{$id}|regex:/^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z]{2}$/",
             'id_dependencia' => 'required|integer|exists:cat_dependencias,id',
             'id_programa'    => 'required|integer|exists:cat_programas,id',
             'id_rol'         => 'required|integer|exists:cat_roles,id',
@@ -39,6 +39,10 @@ class UpdateExternalUserRequest extends FormRequest
             'lastname.required'       => 'El apellido es obligatorio.',
             'email.required'          => 'El correo electrónico es obligatorio.',
             'email.email'             => 'El correo electrónico no tiene un formato válido.',
+            'email.unique'            => 'Este correo electrónico ya está registrado.',
+            'curp.size'               => 'La CURP debe tener exactamente 18 caracteres.',
+            'curp.unique'             => 'Esta CURP ya está registrada.',
+            'curp.regex'              => 'El formato de la CURP no es válido.',
             'id_dependencia.required' => 'Debes seleccionar una dependencia.',
             'id_dependencia.exists'   => 'La dependencia seleccionada no existe.',
             'id_programa.required'    => 'Debes seleccionar un programa.',

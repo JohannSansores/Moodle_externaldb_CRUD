@@ -8,11 +8,9 @@ use App\Models\Catalogo;
 use App\Models\UsuarioExterno;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class ExternalUserController extends Controller
 {
-    // Carga los 4 catálogos en un solo lugar — usado en create() y edit()
     private function catalogos(): array
     {
         return [
@@ -46,10 +44,8 @@ class ExternalUserController extends Controller
 
     public function edit(string $id)
     {
-        $user = UsuarioExterno::findOrFail($id);
-
         return view('external_users.edit', array_merge(
-            ['user' => $user],
+            ['user' => UsuarioExterno::findOrFail($id)],
             $this->catalogos()
         ));
     }
@@ -86,20 +82,18 @@ class ExternalUserController extends Controller
 
     public function importTemplate()
     {
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="plantilla_usuarios.csv"',
-        ];
-
         $callback = function () {
             $handle = fopen('php://output', 'w');
             fwrite($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, ['username', 'password', 'firstname', 'lastname', 'email', 'dependencia', 'programa', 'rol', 'semestre']);
-            fputcsv($handle, ['jperez2024', 'MiClave123', 'Juan', 'Pérez', 'jperez@mail.com', 'Nombre dependencia', 'Nombre programa', 'Nombre rol', 'Nombre semestre']);
+            fputcsv($handle, ['username', 'password', 'firstname', 'lastname', 'email', 'curp', 'dependencia', 'programa', 'rol', 'semestre']);
+            fputcsv($handle, ['jperez2024', 'MiClave123', 'Juan', 'Pérez', 'jperez@mail.com', 'PERJ900101HDFRZN09', 'Nombre dependencia', 'Nombre programa', 'Nombre rol', 'Nombre semestre']);
             fclose($handle);
         };
 
-        return response()->stream($callback, 200, $headers);
+        return response()->stream($callback, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="plantilla_usuarios.csv"',
+        ]);
     }
 
     public function import(Request $request)
@@ -161,6 +155,23 @@ class ExternalUserController extends Controller
                 continue;
             }
 
+            if (!empty($datos['email']) && UsuarioExterno::where('email', $datos['email'])->exists()) {
+                $errores[] = "Fila {$fila}: el correo '{$datos['email']}' ya está registrado, se omitió.";
+                continue;
+            }
+
+            $curp = strtoupper($datos['curp'] ?? '');
+            if (!empty($curp)) {
+                if (strlen($curp) !== 18) {
+                    $errores[] = "Fila {$fila}: la CURP debe tener 18 caracteres.";
+                    continue;
+                }
+                if (UsuarioExterno::where('curp', $curp)->exists()) {
+                    $errores[] = "Fila {$fila}: la CURP '{$curp}' ya está registrada, se omitió.";
+                    continue;
+                }
+            }
+
             $depKey  = strtolower($datos['dependencia']);
             $progKey = strtolower($datos['programa']);
             $rolKey  = strtolower($datos['rol']);
@@ -177,6 +188,7 @@ class ExternalUserController extends Controller
                 'firstname'      => $datos['firstname'],
                 'lastname'       => $datos['lastname'],
                 'email'          => $datos['email'],
+                'curp'           => !empty($curp) ? $curp : null,
                 'id_dependencia' => $dependencias[$depKey]->id,
                 'id_programa'    => $programas[$progKey]->id,
                 'id_rol'         => $roles[$rolKey]->id,

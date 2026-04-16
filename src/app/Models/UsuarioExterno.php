@@ -19,6 +19,7 @@ class UsuarioExterno extends Model
         'firstname',
         'lastname',
         'email',
+        'curp',
         'id_dependencia',
         'id_programa',
         'id_rol',
@@ -28,13 +29,11 @@ class UsuarioExterno extends Model
 
     protected $hidden = ['password'];
 
-    // Hashear contraseña automáticamente al asignarla
     public function setPasswordAttribute(string $value): void
     {
         $this->attributes['password'] = Hash::make($value);
     }
 
-    // Relaciones con catálogos
     public function dependencia()
     {
         return $this->belongsTo(Catalogo::class, 'id_dependencia');

@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExternalUserController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\DatabaseExportController;
 use Illuminate\Support\Facades\Route;
 
 // Homepage
@@ -11,9 +12,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Superadmin routes (manage other admins)
+// Superadmin routes
 Route::middleware(['auth', 'superadmin'])->group(function () {
-    Route::resource('admins', AdminController::class)->except(['show','edit','update']);
+    Route::resource('admins', AdminController::class)->except(['show', 'edit', 'update']);
+    Route::get('/database/export', [DatabaseExportController::class, 'export'])->name('database.export');
 });
 
 // Admin & Superadmin routes (CRUD)

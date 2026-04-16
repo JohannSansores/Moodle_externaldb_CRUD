@@ -10,7 +10,6 @@
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    {{-- Validation errors --}}
                     @if ($errors->any())
                         <div class="mb-4 text-red-600">
                             <ul class="list-disc list-inside">
@@ -24,122 +23,119 @@
                     <form method="POST" action="{{ route('external-users.store') }}">
                         @csrf
 
-                        {{-- Username --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Usuario</label>
-                            <input type="text" name="username" value="{{ old('username') }}"
-                                class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                required>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                            {{-- Usuario --}}
+                            <div>
+                                <label class="block font-medium text-sm">Usuario</label>
+                                <input type="text" name="username" value="{{ old('username') }}"
+                                    class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                            </div>
+
+                            {{-- Contraseña --}}
+                            <div>
+                                <label class="block font-medium text-sm">Contraseña</label>
+                                <input type="password" name="password"
+                                    class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                                <small class="text-gray-500 text-xs">Mín. 8 caracteres</small>
+                            </div>
+
+                            {{-- Nombre --}}
+                            <div>
+                                <label class="block font-medium text-sm">Nombre</label>
+                                <input type="text" name="firstname" value="{{ old('firstname') }}"
+                                    class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                            </div>
+
+                            {{-- Apellido --}}
+                            <div>
+                                <label class="block font-medium text-sm">Apellido</label>
+                                <input type="text" name="lastname" value="{{ old('lastname') }}"
+                                    class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                            </div>
+
+                            {{-- Correo --}}
+                            <div>
+                                <label class="block font-medium text-sm">Correo electrónico</label>
+                                <input type="email" name="email" value="{{ old('email') }}"
+                                    class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                            </div>
+
+                            {{-- CURP --}}
+                            <div>
+                                <label class="block font-medium text-sm">CURP <span class="text-gray-400 font-normal">(opcional)</span></label>
+                                <input type="text" name="curp" value="{{ old('curp') }}"
+                                    maxlength="18"
+                                    placeholder="XXXX000000XXXXXX00"
+                                    style="text-transform:uppercase"
+                                    class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm font-mono">
+                            </div>
+
+                            {{-- Dependencia --}}
+                            <div>
+                                <label class="block font-medium text-sm">Dependencia</label>
+                                <select name="id_dependencia"
+                                        class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    @foreach ($dependencias as $item)
+                                        <option value="{{ $item->id }}" {{ old('id_dependencia') == $item->id ? 'selected' : '' }}>
+                                            {{ $item->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Programa --}}
+                            <div>
+                                <label class="block font-medium text-sm">Programa</label>
+                                <select name="id_programa"
+                                        class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    @foreach ($programas as $item)
+                                        <option value="{{ $item->id }}" {{ old('id_programa') == $item->id ? 'selected' : '' }}>
+                                            {{ $item->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Rol --}}
+                            <div>
+                                <label class="block font-medium text-sm">Rol</label>
+                                <select name="id_rol"
+                                        class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    @foreach ($roles as $item)
+                                        <option value="{{ $item->id }}" {{ old('id_rol') == $item->id ? 'selected' : '' }}>
+                                            {{ $item->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Semestre --}}
+                            <div>
+                                <label class="block font-medium text-sm">Semestre</label>
+                                <select name="id_semestre"
+                                        class="mt-1 w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    @foreach ($semestres as $item)
+                                        <option value="{{ $item->id }}" {{ old('id_semestre') == $item->id ? 'selected' : '' }}>
+                                            {{ $item->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                         </div>
 
-                        {{-- Password --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Contraseña</label>
-                            <input type="password" name="password"
-                                class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                required>
-                            <small class="text-gray-500 text-sm">
-                                Mín. 8 caracteres (compatible con bcrypt / Moodle)
-                            </small>
-                        </div>
-
-                        {{-- Firstname --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Nombre</label>
-                            <input type="text" name="firstname" value="{{ old('firstname') }}"
-                                class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                required>
-                        </div>
-
-                        {{-- Lastname --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Apellido</label>
-                            <input type="text" name="lastname" value="{{ old('lastname') }}"
-                                class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                required>
-                        </div>
-
-                        {{-- Email --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Correo electrónico</label>
-                            <input type="email" name="email" value="{{ old('email') }}"
-                                class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                required>
-                        </div>
-
-                        {{-- Dependencia --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Dependencia</label>
-                            <select name="id_dependencia"
-                                    class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                    required>
-                                <option value="">-- Seleccionar --</option>
-                                @foreach ($dependencias as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ old('id_dependencia') == $item->id ? 'selected' : '' }}>
-                                        {{ $item->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Programa --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Programa</label>
-                            <select name="id_programa"
-                                    class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                    required>
-                                <option value="">-- Seleccionar --</option>
-                                @foreach ($programas as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ old('id_programa') == $item->id ? 'selected' : '' }}>
-                                        {{ $item->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Rol --}}
-                        <div class="mb-3">
-                            <label class="block font-medium">Rol</label>
-                            <select name="id_rol"
-                                    class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                    required>
-                                <option value="">-- Seleccionar --</option>
-                                @foreach ($roles as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ old('id_rol') == $item->id ? 'selected' : '' }}>
-                                        {{ $item->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Semestre --}}
-                        <div class="mb-4">
-                            <label class="block font-medium">Semestre</label>
-                            <select name="id_semestre"
-                                    class="w-full rounded border-gray-300 dark:bg-gray-700 px-3 py-2 text-sm"
-                                    required>
-                                <option value="">-- Seleccionar --</option>
-                                @foreach ($semestres as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ old('id_semestre') == $item->id ? 'selected' : '' }}>
-                                        {{ $item->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Buttons --}}
-                        <div class="flex justify-end gap-3">
+                        <div class="flex justify-end gap-3 mt-6">
                             <a href="{{ route('dashboard') }}"
-                               class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
+                               class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-sm">
                                 Volver
                             </a>
-
                             <button type="submit"
-                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm">
                                 Crear usuario
                             </button>
                         </div>

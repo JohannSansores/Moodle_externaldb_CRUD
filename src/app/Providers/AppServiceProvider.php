@@ -15,7 +15,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Paginator::defaultView('vendor.pagination.custom');
+        Paginator::currentPathResolver(function () {
+            return request()->getBaseUrl() . request()->path();
+        });
+        //Paginator::defaultView('vendor.pagination.custom');
 
         // Force Laravel to generate URLs with /admin-users prefix exactly once
         URL::forceRootUrl(config('app.url'));
