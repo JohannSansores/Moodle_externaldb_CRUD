@@ -20,7 +20,7 @@ Route::post('/register', [RegistrationController::class, 'store'])
 Route::get('/admin', [AuthenticatedSessionController::class, 'create'])
     ->name('admin.login');
 
-Route::post('/admin/login', [AuthenticatedSessionController::class, 'login'])
+Route::post('/admin/login', [AuthenticatedSessionController::class, 'store'])
     ->name('admin.login.submit');
 
 Route::post('/admin/logout', [AuthenticatedSessionController::class, 'logout'])
@@ -34,6 +34,8 @@ Route::middleware(['auth', 'superadmin'])->group(function () {
 
 // Admin & Superadmin routes (CRUD)
 Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/dashboard', [ExternalUserController::class, 'index'])->name('dashboard');
 
     // Rutas de importación deben ir ANTES del resource para evitar conflicto con {external_user}
     Route::get('/external-users/import/form', [ExternalUserController::class, 'importForm'])->name('external-users.import.form');
