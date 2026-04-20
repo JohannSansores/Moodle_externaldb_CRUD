@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExternalUserController;
@@ -7,10 +9,22 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DatabaseExportController;
 use Illuminate\Support\Facades\Route;
 
-// Homepage
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public page for singup
+Route::get('/', [RegistrationController::class, 'show'])
+    ->name('register.form');
+
+Route::post('/register', [RegistrationController::class, 'store'])
+    ->name('register.store');
+
+// Login admin
+Route::get('/admin', [AuthenticatedSessionController::class, 'create'])
+    ->name('admin.login');
+
+Route::post('/admin/login', [AuthenticatedSessionController::class, 'login'])
+    ->name('admin.login.submit');
+
+Route::post('/admin/logout', [AuthenticatedSessionController::class, 'logout'])
+    ->name('admin.logout');
 
 // Superadmin routes
 Route::middleware(['auth', 'superadmin'])->group(function () {
@@ -20,7 +34,6 @@ Route::middleware(['auth', 'superadmin'])->group(function () {
 
 // Admin & Superadmin routes (CRUD)
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [ExternalUserController::class, 'index'])->name('dashboard');
 
     // Rutas de importación deben ir ANTES del resource para evitar conflicto con {external_user}
     Route::get('/external-users/import/form', [ExternalUserController::class, 'importForm'])->name('external-users.import.form');

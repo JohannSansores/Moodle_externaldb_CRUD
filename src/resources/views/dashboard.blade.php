@@ -145,7 +145,6 @@
             @if ($users->hasPages())
                 <div class="mt-4">
                     {{ $users->links() }}
-                    {{-- $users->withPath(request()->getBaseUrl() . request()->path())->links() --}}
                 </div>
             @endif
 
