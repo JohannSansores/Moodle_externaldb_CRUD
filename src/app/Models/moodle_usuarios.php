@@ -23,5 +23,6 @@ class moodle_usuarios extends Model
         'id_rol',
         'id_semestre',
         'fechacreacion',
+        'curp', // <-- added
     ];
 }
