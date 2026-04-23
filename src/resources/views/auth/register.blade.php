@@ -4,28 +4,28 @@
 
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
+            <x-input-label for="name" value="Nombre" />
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
         <!-- Surname -->
-        <div>
-            <x-input-label for="surname" :value="__('Surname')" />
+        <div class="mt-4">
+            <x-input-label for="surname" value="Apellido" />
             <x-text-input id="surname" class="block mt-1 w-full" type="text" name="surname" :value="old('surname')" required autocomplete="family-name" />
             <x-input-error :messages="$errors->get('surname')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" value="Correo electrónico" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" value="Contraseña" />
 
             <div class="relative">
                 <x-text-input id="password" class="block mt-1 w-full"
@@ -46,7 +46,7 @@
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <x-input-label for="password_confirmation" value="Confirmar contraseña" />
 
             <div class="relative">
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
@@ -66,7 +66,7 @@
 
         <!-- Curp -->
         <div class="mt-4">
-            <x-input-label for="curp" :value="__('CURP')" />
+            <x-input-label for="curp" value="CURP" />
             <x-text-input id="curp" class="block mt-1 w-full" type="text" name="curp" :value="old('curp')" required autocomplete="curp" />
             <x-input-error :messages="$errors->get('curp')" class="mt-2" />
         </div>
@@ -92,7 +92,7 @@
                 @endforeach
             </select>
         </div>
-        
+
         <input type="hidden" name="role_id" value="2">
         <input type="hidden" name="semester_id" value="1">
 
