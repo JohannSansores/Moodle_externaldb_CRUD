@@ -1,4 +1,16 @@
 <x-guest-layout>
+    @if (session('status'))
+        <div class="mb-4 font-medium text-sm text-green-600">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="mb-4 font-medium text-sm text-red-600">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('register.store') }}">
         @csrf
 
@@ -95,6 +107,13 @@
 
         <input type="hidden" name="role_id" value="2">
         <input type="hidden" name="semester_id" value="1">
+
+        <!-- CAPTCHA -->
+        <div class="mt-4">
+            {!! NoCaptcha::renderJs() !!}
+            {!! NoCaptcha::display() !!}
+            <x-input-error :messages="$errors->get('g-recaptcha-response')" class="mt-2" />
+        </div>
 
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('admin.login') }}">
