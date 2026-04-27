@@ -10,7 +10,7 @@ class moodle_usuarios extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
-    protected $table = 'usuarios_externos';
+    protected $table = 'moodle_usuarios';
 
     public $timestamps = false;
 
@@ -22,12 +22,12 @@ class moodle_usuarios extends Authenticatable implements MustVerifyEmail
         'firstname',
         'lastname',
         'email',
+        'curp',
         'id_dependencia',
         'id_programa',
         'id_rol',
         'id_semestre',
         'fechacreacion',
-        'curp',
     ];
 
     protected $hidden = [
@@ -37,6 +37,67 @@ class moodle_usuarios extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    // Alias de campos para usar name/surname/dependencia/programa/rol/semestre
+    public function getNameAttribute()
+    {
+        return $this->firstname;
+    }
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['firstname'] = $value;
+    }
+
+    public function getSurnameAttribute()
+    {
+        return $this->lastname;
+    }
+
+    public function setSurnameAttribute($value)
+    {
+        $this->attributes['lastname'] = $value;
+    }
+
+    public function getDependenciaAttribute()
+    {
+        return $this->attributes['id_dependencia'];
+    }
+
+    public function setDependenciaAttribute($value)
+    {
+        $this->attributes['id_dependencia'] = $value;
+    }
+
+    public function getProgramaAttribute()
+    {
+        return $this->attributes['id_programa'];
+    }
+
+    public function setProgramaAttribute($value)
+    {
+        $this->attributes['id_programa'] = $value;
+    }
+
+    public function getRolAttribute()
+    {
+        return $this->attributes['id_rol'];
+    }
+
+    public function setRolAttribute($value)
+    {
+        $this->attributes['id_rol'] = $value;
+    }
+
+    public function getSemestreAttribute()
+    {
+        return $this->attributes['id_semestre'];
+    }
+
+    public function setSemestreAttribute($value)
+    {
+        $this->attributes['id_semestre'] = $value;
+    }
 
     // Para autenticación
     public function getAuthIdentifierName()

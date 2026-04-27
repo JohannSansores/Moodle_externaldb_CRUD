@@ -105,8 +105,8 @@
             </select>
         </div>
 
-        <input type="hidden" name="role_id" value="2">
-        <input type="hidden" name="semester_id" value="1">
+        <input type="hidden" name="id_rol" value="2">
+        <input type="hidden" name="id_semestre" value="1">
 
         <!-- CAPTCHA -->
         <div class="mt-4">
