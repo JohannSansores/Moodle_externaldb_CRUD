@@ -1,60 +1,65 @@
-version: '3.5'
-
 services:
   webapp:
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
-    container_name: laravel-app-${PROJECT}
-    entrypoint: ["/docker-entrypoint.sh"]
+    container_name: laravel-app-${PROJECT:-ProyectoSS}
+    env_file:
+      - .env.local
+    environment:
+      - DB_HOST=database
+      - DB_CONNECTION=mysql
+    entrypoint: sh -c '/usr/local/bin/docker-entrypoint.sh'
     volumes:
-      - ./src:/usr/local/apache2/htdocs
-      - ./docker/php/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - ./src:/var/www/html
+      - ./docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    depends_on:
+      database:
+        condition: service_healthy
     restart: unless-stopped
-    hostname: ${PROJECT}-app-laravel
+    hostname: ${PROJECT:-ProyectoSS}-app-laravel
     networks:
-      - ${RED}
+      - ${RED:-develop}
+
   apache:
     image: httpd:2.4.66
-    container_name: apache2-${PROJECT}
+    container_name: apache2-${PROJECT:-ProyectoSS}
     ports:
       - '8000:80'
     volumes:
       - ./docker/apache2/httpd.conf:/usr/local/apache2/conf/httpd.conf
       - ./docker/apache2/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
       - ./src:/usr/local/apache2/htdocs
+    depends_on:
+      - webapp
     restart: unless-stopped
-    hostname: ${PROJECT}-apache2
+    hostname: ${PROJECT:-ProyectoSS}-apache2
     networks:
-      - ${RED}
+      - ${RED:-develop}
+
   database:
     image: mysql:8.4.7
-    container_name: mysql-${PROJECT}
+    container_name: mysql-${PROJECT:-ProyectoSS}
     environment:
-      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-      - db_root_password
-      - db_password
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: crud_db
+      MYSQL_USER: crud_user
+      MYSQL_PASSWORD: crud_password
     ports:
       - '3333:3306'
     volumes:
-      - ${DB_PATH}:/var/lib/mysql 
+      - ./docker/mysql/data:/var/lib/mysql
       - ./docker/mysql/init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     hostname: mysql_external_users
     networks:
-      - ${RED}
+      - ${RED:-develop}
 
 networks:
   develop:
-    external: true
-
-secrets:
-  db_root_password:
-    file: docker/.secrets/db_root_password
-  db_password:
-    file: docker/.secrets/db_password
-
+    driver: bridge
