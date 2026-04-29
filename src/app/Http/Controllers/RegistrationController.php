@@ -40,6 +40,9 @@ class RegistrationController extends Controller
         $validated = $request->validated();
 
         try {
+
+            $validated['id_rol'] = 3; // Student role by default
+
             if (app()->environment('testing')) {
                 $user = new moodle_usuarios([
                     'username' => $validated['email'],

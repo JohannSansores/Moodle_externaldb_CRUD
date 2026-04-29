@@ -105,7 +105,7 @@
             </select>
         </div>
 
-        <input type="hidden" name="id_rol" value="2">
+        <input type="hidden" name="id_rol" value="3">
         <input type="hidden" name="id_semestre" value="1">
 
         <!-- CAPTCHA -->
