@@ -19,13 +19,11 @@ class RegistrationController extends Controller
             $dependencias = DB::table('cat_dependencias')
                 ->select('id', 'nombre')
                 ->orderBy('nombre')
-                ->timeout(5)
                 ->get();
             
             $programas = DB::table('cat_programas')
                 ->select('id', 'nombre')
                 ->orderBy('nombre')
-                ->timeout(5)
                 ->get();
         } catch (\Exception $e) {
             Log::error('DB Error in RegistrationController::show: ' . $e->getMessage());
