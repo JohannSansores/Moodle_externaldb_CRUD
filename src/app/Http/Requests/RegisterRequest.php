@@ -30,24 +30,28 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
-$testing = app()->environment('testing');
+        $testing = app()->environment('testing');
+
+        $tablaUsuarios = 'moodle_usuarios'; 
+        $tablaDependencias = 'cat_dependencias'; 
+        $tablaProgramas = 'cat_programas';
 
         return [
-            'name' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-            'surname' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-            'email' => 'required|string|email|max:255' . ($testing ? '' : '|unique:moodle_usuarios,email'),
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-            'password_confirmation' => 'required|same:password',
-            'curp' => [
-                'required', 'string', 'size:18', 
-                'regex:/^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9][0-9]$/',
-                $testing ? '' : 'unique:moodle_usuarios,curp'
-            ],
-            'id_dependencia' => $testing ? 'required|integer|min:1' : 'required|exists:cat_dependencias,id',
-            'id_programa' => $testing ? 'required|integer|min:1' : 'required|exists:cat_programas,id',
-            'id_rol' => 'required|integer|min:1',
-            'id_semestre' => 'required|integer|min:1',
-            'g-recaptcha-response' => $testing ? 'nullable' : 'required|captcha',
+        'name' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+        'surname' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+        'email' => 'required|string|email|max:255' . ($testing ? '' : "|unique:{$tablaUsuarios},email"),
+        'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        'password_confirmation' => 'required|same:password',
+        'curp' => [
+            'required', 'string', 'size:18', 
+            'regex:/^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9][0-9]$/',
+            $testing ? '' : "unique:{$tablaUsuarios},curp"
+        ],
+        'id_dependencia' => $testing ? 'required|integer|min:1' : "required|exists:{$tablaDependencias},id",
+        'id_programa' => $testing ? 'required|integer|min:1' : "required|exists:{$tablaProgramas},id",
+        'id_rol' => 'required|integer|min:1',
+        'id_semestre' => 'required|integer|min:1',
+        'g-recaptcha-response' => $testing ? 'nullable' : 'required|captcha',
         ];
     }
 
