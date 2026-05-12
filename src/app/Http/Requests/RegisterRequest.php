@@ -32,7 +32,7 @@ class RegisterRequest extends FormRequest
     {
         $testing = app()->environment('testing');
 
-        $tablaUsuarios = 'moodle_usuarios'; 
+        $tablaUsuarios = 'usuarios_externos'; 
         $tablaDependencias = 'cat_dependencias'; 
         $tablaProgramas = 'cat_programas';
 
