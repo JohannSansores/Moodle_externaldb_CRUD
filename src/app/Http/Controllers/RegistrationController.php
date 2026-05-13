@@ -44,7 +44,7 @@ class RegistrationController extends Controller
 
             if (app()->environment('testing')) {
                 $user = new moodle_usuarios([
-                    'username' => $validated['email'],
+                    'username' => $validated['username'],
                     'password' => Hash::make($validated['password']),
                     'firstname' => $validated['name'],
                     'lastname' => $validated['surname'],
@@ -61,7 +61,7 @@ class RegistrationController extends Controller
             } else {
                 // This will insert the user and return the created model instance
                 $user = moodle_usuarios::create([
-                    'username' => $validated['email'],
+                    'username' => $validated['username'],
                     'password' => Hash::make($validated['password']),
                     'firstname' => $validated['name'],
                     'lastname' => $validated['surname'],

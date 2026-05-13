@@ -39,7 +39,9 @@ class RegisterRequest extends FormRequest
         return [
         'name' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
         'surname' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-        'email' => 'required|string|email|max:255' . ($testing ? '' : "|unique:{$tablaUsuarios},email"),
+        'username' => ['required', 'string', 'alpha_dash', 'min:4', 'max:20', $testing ? '' : "unique:{$tablaUsuarios},username"],
+        'email_confirmation' => 'required',
+        'email' => 'required|string|email|max:255|confirmed' . ($testing ? '' : "|unique:{$tablaUsuarios},email"),
         'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         'password_confirmation' => 'required|same:password',
         'curp' => [
@@ -60,8 +62,13 @@ class RegisterRequest extends FormRequest
         return [
             'name.regex' => 'El nombre solo puede contener letras.',
             'surname.regex' => 'Los apellidos solo pueden contener letras.',
+            'username.required' => 'El nombre de usuario es obligatorio.',
+            'username.unique' => 'Este nombre de usuario ya está en uso.',
+            'username.alpha_dash' => 'El usuario solo puede contener letras, números, guiones y guiones bajos.',
+            'username.min' => 'El usuario debe tener al menos 4 caracteres.',
             'email.unique' => 'Este correo ya está registrado.',
             'email.email' => 'Formato de correo inválido.',
+            'email.confirmed' => 'Los correos electrónicos no coinciden.',
             'curp.unique' => 'Esta CURP ya está registrada.',
             'curp.regex' => 'El formato de la CURP es incorrecto.',
             'curp.size' => 'La CURP debe tener exactamente 18 caracteres.',
