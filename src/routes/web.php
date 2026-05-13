@@ -8,6 +8,7 @@ use App\Http\Controllers\ExternalUserController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DatabaseExportController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\RegisteredUserController; 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,9 @@ Route::get('/register', [RegistrationController::class, 'show'])
 
 Route::post('/register', [RegistrationController::class, 'store'])
     ->name('register.store');
+
+Route::post('/validate-field', [RegistrationController::class, 'validateField'])
+    ->name('validate.field');
 
 // Email verification routes
 //Route::get('/email/verify', function () {
@@ -35,6 +39,7 @@ Route::post('/register', [RegistrationController::class, 'store'])
 Route::get('/register/success', function () {
     return view('auth.register-success');
 })->name('register.success');
+
 
 // Login admin
 Route::get('/admin', [AuthenticatedSessionController::class, 'create'])

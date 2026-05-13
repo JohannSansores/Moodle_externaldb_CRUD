@@ -135,4 +135,10 @@ class moodle_usuarios extends Authenticatable implements MustVerifyEmail
     {
         return null;
     }
+
+    public static function existeRegistro($campo, $valor)
+    {
+        return self::where($campo, $valor)->exists();
+    }
+
 }

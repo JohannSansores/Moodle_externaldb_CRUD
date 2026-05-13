@@ -28,24 +28,30 @@
             <x-input-error :messages="$errors->get('surname')" class="mt-2" />
         </div>
 
-          <!-- Username -->
+        <!-- Username -->
         <div class="mt-4">
             <x-input-label for="username" value="Nombre de Usuario" />
-            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autocomplete="username" />
+            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autocomplete="username" 
+                oninput="validarCampoRealTime('username', this.value)" />
+            <div id="feedback-username" class="text-xs mt-1 hidden"></div>
             <x-input-error :messages="$errors->get('username')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" value="Correo electrónico" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="email" 
+                oninput="validarCampoRealTime('email', this.value)" />
+            <div id="feedback-email" class="text-xs mt-1 hidden"></div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Confirm Email Address -->
         <div class="mt-4">
             <x-input-label for="email_confirmation" value="Confirmar correo electrónico" />
-            <x-text-input id="email_confirmation" class="block mt-1 w-full" type="email" name="email_confirmation" required autocomplete="username" />
+            <x-text-input id="email_confirmation" class="block mt-1 w-full" type="email" name="email_confirmation" required 
+                oninput="compararCorreos()" />
+            <div id="feedback-email-conf" class="text-xs mt-1 hidden"></div>
             <x-input-error :messages="$errors->get('email_confirmation')" class="mt-2" />
         </div>
 
@@ -141,6 +147,66 @@
     </form>
 </x-guest-layout>
 <script>
+    let timers = {};
+
+    function validarCampoRealTime(campo, valor) {
+        const feedback = document.getElementById(`feedback-${campo}`);
+        
+        // Limpiar timer anterior
+        clearTimeout(timers[campo]);
+
+        if (valor.length < 3) {
+            feedback.classList.add('hidden');
+            return;
+        }
+
+        // Esperar a que el usuario deje de escribir
+        timers[campo] = setTimeout(() => {
+            fetch("{{ route('validate.field') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ 
+                    field: campo, 
+                    value: campo === 'email' ? valor.toLowerCase() : valor 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                feedback.classList.remove('hidden');
+                if (data.status === 'error') {
+                    feedback.textContent = data.message;
+                    feedback.className = "text-xs mt-1 text-red-600 dark:text-red-400 font-bold";
+                } else {
+                    feedback.textContent = `✓ ${campo.charAt(0).toUpperCase() + campo.slice(1)} disponible`;
+                    feedback.className = "text-xs mt-1 text-green-600 dark:text-green-400 font-bold";
+                }
+            });
+        }, 500);
+    }
+
+    function compararCorreos() {
+        const email = document.getElementById('email').value;
+        const confirm = document.getElementById('email_confirmation').value;
+        const feedback = document.getElementById('feedback-email-conf');
+
+        if (confirm.length === 0) {
+            feedback.classList.add('hidden');
+            return;
+        }
+
+        feedback.classList.remove('hidden');
+        if (email !== confirm) {
+            feedback.textContent = "Los correos no coinciden.";
+            feedback.className = "text-xs mt-1 text-red-600 dark:text-red-400 font-bold";
+        } else {
+            feedback.textContent = "✓ Confirmación correcta";
+            feedback.className = "text-xs mt-1 text-green-600 dark:text-green-400 font-bold";
+        }
+    }
+    
     function togglePassword(inputId, button) {
         const input = document.getElementById(inputId);
         const svg = button.querySelector('svg');

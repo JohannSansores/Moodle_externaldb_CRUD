@@ -53,4 +53,9 @@ class UsuarioExterno extends Model
     {
         return $this->belongsTo(Catalogo::class, 'id_semestre');
     }
+
+     public static function existeRegistro($campo, $valor)
+    {
+        return self::where($campo, $valor)->exists();
+    }
 }

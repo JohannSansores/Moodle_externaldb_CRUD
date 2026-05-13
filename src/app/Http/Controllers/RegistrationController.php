@@ -109,6 +109,34 @@ class RegistrationController extends Controller
 
         return redirect()->route('register.show')->with('status', '¡Correo verificado con éxito! Ya puedes usar la plataforma.');
     }
+
+    public function validateField(Request $request)
+    {
+        $field = $request->field;
+        $value = $request->value;
+
+        if ($field === 'email') {
+            $value = strtolower(trim($value));
+        } elseif ($field === 'username') {
+            // Moodle suele preferir minúsculas y sin espacios
+            $value = strtolower(trim($value));
+        }
+
+        $exists = \App\Models\moodle_usuarios::existeRegistro($field, $value);
+
+        if ($exists) {
+            $label = ($field === 'username') ? 'nombre de usuario' : 'correo electrónico';
+            return response()->json([
+                'status' => 'error',
+                'message' => "Este {$label} ya se encuentra registrado."
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Disponible'
+        ]);
+    }
 }
 
 

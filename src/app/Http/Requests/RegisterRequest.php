@@ -39,7 +39,14 @@ class RegisterRequest extends FormRequest
         return [
         'name' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
         'surname' => 'required|string|min:2|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-        'username' => ['required', 'string', 'alpha_dash', 'min:4', 'max:20', $testing ? '' : "unique:{$tablaUsuarios},username"],
+        'username' => [
+            'required', 
+            'string', 
+            'min:4', 
+            'max:20', 
+            'regex:/^[a-zA-Z0-9._-]+$/', // Permite letras, números, puntos, guiones y guiones bajos
+            $testing ? '' : "unique:{$tablaUsuarios},username"
+        ],
         'email_confirmation' => 'required',
         'email' => 'required|string|email|max:255|confirmed' . ($testing ? '' : "|unique:{$tablaUsuarios},email"),
         'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
@@ -64,7 +71,7 @@ class RegisterRequest extends FormRequest
             'surname.regex' => 'Los apellidos solo pueden contener letras.',
             'username.required' => 'El nombre de usuario es obligatorio.',
             'username.unique' => 'Este nombre de usuario ya está en uso.',
-            'username.alpha_dash' => 'El usuario solo puede contener letras, números, guiones y guiones bajos.',
+            'username.regex' => 'El nombre de usuario solo puede contener letras, números, puntos, guiones y guiones bajos.',
             'username.min' => 'El usuario debe tener al menos 4 caracteres.',
             'email.unique' => 'Este correo ya está registrado.',
             'email.email' => 'Formato de correo inválido.',
