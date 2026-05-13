@@ -8,6 +8,7 @@ use App\Http\Controllers\ExternalUserController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DatabaseExportController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
 // Public authentication routes
@@ -21,19 +22,19 @@ Route::post('/register', [RegistrationController::class, 'store'])
     ->name('register.store');
 
 // Email verification routes
-// Route::get('/email/verify', function () {
-//     return view('auth.verify-email');
-// })->middleware('auth')->name('verification.notice');
+//Route::get('/email/verify', function () {
+//    return view('auth.verify-email');
+//})->name('verification.notice');
 
-// Route::get('/email/verify/{id}/{hash}', function (Request $request) {
-//     $request->fulfill();
-//     return redirect()->route('dashboard')->with('status', '¡Tu correo ha sido verificado exitosamente!');
-// })->middleware(['auth', 'signed'])->name('verification.verify');
+// Ruoute that handles the email verification link
+//Route::get('/email/verify/{id}/{hash}', [RegistrationController::class, 'verify'])
+//    ->middleware(['signed', 'throttle:6,1'])
+//    ->name('verification.verify');
 
-// Route::post('/email/resend', function (Request $request) {
-//     $request->user()->sendEmailVerificationNotification();
-//     return back()->with('status', 'Se ha enviado un nuevo enlace de verificaci\u00f3n a tu correo.');
-// })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+// Route of successful registration
+Route::get('/register/success', function () {
+    return view('auth.register-success');
+})->name('register.success');
 
 // Login admin
 Route::get('/admin', [AuthenticatedSessionController::class, 'create'])
