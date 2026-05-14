@@ -157,22 +157,30 @@
 <script>
     let timers = {};
 
-    function validarCampoRealTime(campo, valor) {
-        const feedback = document.getElementById(`feedback-${campo}`);
+    function validarCampoRealTime(field, value) {
+        const feedback = document.getElementById(`feedback-${field}`);
         
+        const labelNames = {
+                'username': 'Nombre de usuario',
+                'email': 'Correo electrónico',
+                'curp': 'CURP'
+            };
+
         // Limpiar timer anterior
-        clearTimeout(timers[campo]);
+        clearTimeout(timers[field]);
 
-        let minLength = 3;
-        if (campo === 'curp') minLength = 10; 
+    // CURP requires a longer minimum length to avoid unnecessary database hits
+        let minLength = (field === 'curp') ? 10 : 3;
 
-        if (valor.length < minLength) {
+        if (value.length < minLength) {
             feedback.classList.add('hidden');
             return;
         }
 
-        // Esperar a que el usuario deje de escribir
-        timers[campo] = setTimeout(() => {
+        timers[field] = setTimeout(() => {
+            // Normalizing data before sending: Lowercase for emails, Uppercase for CURP
+            const normalizedValue = field === 'email' ? value.toLowerCase() : (field === 'curp' ? value.toUpperCase() : value);
+
             fetch("{{ route('validate.field') }}", {
                 method: "POST",
                 headers: {
@@ -180,21 +188,30 @@
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
                 body: JSON.stringify({ 
-                    field: campo, 
-                    value: campo === 'email' ? valor.toLowerCase() : valor 
+                    field: field, 
+                    value: normalizedValue 
                 })
             })
             .then(response => response.json())
             .then(data => {
                 feedback.classList.remove('hidden');
+                
                 if (data.status === 'error') {
                     feedback.textContent = data.message;
                     feedback.className = "text-xs mt-1 text-red-600 dark:text-red-400 font-bold";
                 } else {
-                    feedback.textContent = `${campo.charAt(0).toUpperCase() + campo.slice(1)} disponible`;
+                    // Determine the success message
+                    if (field === 'curp') {
+                        feedback.textContent = "✓ CURP válido";
+                    } else {
+                        const friendlyName = labelNames[field] || field;
+                        feedback.textContent = `✓ ${friendlyName} disponible`;
+                    }
+
                     feedback.className = "text-xs mt-1 text-green-600 dark:text-green-400 font-bold";
                 }
-            });
+            })
+            .catch(error => console.error('Error in real-time validation:', error));
         }, 500);
     }
 
@@ -238,12 +255,12 @@
         }
     }
 
-    function validarPasswordRealTime(valor) {
+    function validarPasswordRealTime(value) {
     const feedback = document.getElementById('feedback-password');
     feedback.classList.remove('hidden');
     
     // Reglas de validación (Moodle suele requerir al menos 8 caracteres)
-    if (valor.length < 8) {
+    if (value.length < 8) {
         feedback.textContent = "La contraseña debe tener al menos 8 caracteres.";
         feedback.className = "text-xs mt-1 text-red-600 font-bold";
     } else {
