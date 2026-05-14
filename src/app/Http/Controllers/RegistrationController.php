@@ -125,14 +125,16 @@ class RegistrationController extends Controller
 
         if ($exists) {
             $labels = [
-                'username' => 'nombre de usuario',
-                'email' => 'correo electrónico',
-                'curp' => 'CURP'
+                'username' => 'Este nombre de usuario',
+                'email'    => 'Este correo electrónico',
+                'curp'     => 'Esta CURP'
             ];
+            
+            $subject = $labels[$field] ?? "Este campo";
             
             return response()->json([
                 'status' => 'error',
-                'message' => "Este " . ($labels[$field] ?? $field) . " ya está registrado."
+                'message' => "{$subject} ya se encuentra en uso."
             ]);
         }
 
