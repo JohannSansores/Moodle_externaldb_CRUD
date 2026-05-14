@@ -115,27 +115,28 @@ class RegistrationController extends Controller
         $field = $request->field;
         $value = $request->value;
 
-        if ($field === 'email') {
-            $value = strtolower(trim($value));
-        } elseif ($field === 'username') {
-            // Moodle suele preferir minúsculas y sin espacios
+        if ($field === 'curp') {
+            $value = strtoupper(trim($value));
+        } elseif ($field === 'email' || $field === 'username') {
             $value = strtolower(trim($value));
         }
 
         $exists = \App\Models\moodle_usuarios::existeRegistro($field, $value);
 
         if ($exists) {
-            $label = ($field === 'username') ? 'nombre de usuario' : 'correo electrónico';
+            $labels = [
+                'username' => 'nombre de usuario',
+                'email' => 'correo electrónico',
+                'curp' => 'CURP'
+            ];
+            
             return response()->json([
                 'status' => 'error',
-                'message' => "Este {$label} ya se encuentra registrado."
+                'message' => "Este " . ($labels[$field] ?? $field) . " ya está registrado."
             ]);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Disponible'
-        ]);
+        return response()->json(['status' => 'success']);
     }
 }
 

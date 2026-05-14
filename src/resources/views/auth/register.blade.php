@@ -63,7 +63,9 @@
                 <x-text-input id="password" class="block mt-1 w-full"
                                 type="password"
                                 name="password"
-                                required autocomplete="new-password" />
+                                required autocomplete="new-password"
+                                oninput="validarPasswordRealTime(this.value)" />
+                <div id="feedback-password" class="text-xs mt-1 hidden"></div>
 
                 <button type="button" onclick="togglePassword('password', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,7 +85,10 @@
             <div class="relative">
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
                             type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+                            name="password_confirmation" required autocomplete="new-password" 
+                            oninput="compararPasswords()" />
+
+                <div id="feedback-password-conf" class="text-xs mt-1 hidden"></div>
 
                 <button type="button" onclick="togglePassword('password_confirmation', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,7 +104,10 @@
         <!-- Curp -->
         <div class="mt-4">
             <x-input-label for="curp" value="CURP" />
-            <x-text-input id="curp" class="block mt-1 w-full" type="text" name="curp" :value="old('curp')" required autocomplete="curp" />
+            <x-text-input id="curp" class="block mt-1 w-full" type="text" name="curp" 
+                :value="old('curp')" required 
+                oninput="validarCampoRealTime('curp', this.value)" />
+            <div id="feedback-curp" class="text-xs mt-1 hidden"></div>
             <x-input-error :messages="$errors->get('curp')" class="mt-2" />
         </div>
 
@@ -155,7 +163,10 @@
         // Limpiar timer anterior
         clearTimeout(timers[campo]);
 
-        if (valor.length < 3) {
+        let minLength = 3;
+        if (campo === 'curp') minLength = 10; 
+
+        if (valor.length < minLength) {
             feedback.classList.add('hidden');
             return;
         }
@@ -180,7 +191,7 @@
                     feedback.textContent = data.message;
                     feedback.className = "text-xs mt-1 text-red-600 dark:text-red-400 font-bold";
                 } else {
-                    feedback.textContent = `✓ ${campo.charAt(0).toUpperCase() + campo.slice(1)} disponible`;
+                    feedback.textContent = `${campo.charAt(0).toUpperCase() + campo.slice(1)} disponible`;
                     feedback.className = "text-xs mt-1 text-green-600 dark:text-green-400 font-bold";
                 }
             });
@@ -206,7 +217,7 @@
             feedback.className = "text-xs mt-1 text-green-600 dark:text-green-400 font-bold";
         }
     }
-    
+
     function togglePassword(inputId, button) {
         const input = document.getElementById(inputId);
         const svg = button.querySelector('svg');
@@ -226,4 +237,40 @@
             `;
         }
     }
+
+    function validarPasswordRealTime(valor) {
+    const feedback = document.getElementById('feedback-password');
+    feedback.classList.remove('hidden');
+    
+    // Reglas de validación (Moodle suele requerir al menos 8 caracteres)
+    if (valor.length < 8) {
+        feedback.textContent = "La contraseña debe tener al menos 8 caracteres.";
+        feedback.className = "text-xs mt-1 text-red-600 font-bold";
+    } else {
+        feedback.textContent = "✓ Contraseña segura";
+        feedback.className = "text-xs mt-1 text-green-600 font-bold";
+    }
+    // También validamos si coincide con la confirmación si es que ya escribió algo ahí
+    compararPasswords();
+}
+
+function compararPasswords() {
+    const pass = document.getElementById('password').value;
+    const conf = document.getElementById('password_confirmation').value;
+    const feedback = document.getElementById('feedback-password-conf');
+
+    if (conf.length === 0) {
+        feedback.classList.add('hidden');
+        return;
+    }
+
+    feedback.classList.remove('hidden');
+    if (pass !== conf) {
+        feedback.textContent = "Las contraseñas no coinciden.";
+        feedback.className = "text-xs mt-1 text-red-600 font-bold";
+    } else {
+        feedback.textContent = "✓ Las contraseñas coinciden";
+        feedback.className = "text-xs mt-1 text-green-600 font-bold";
+    }
+}
 </script>
