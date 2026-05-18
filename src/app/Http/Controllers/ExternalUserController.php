@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateExternalUserRequest;
 use App\Models\Catalogo;
 use App\Models\UsuarioExterno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ExternalUserController extends Controller
@@ -21,12 +22,19 @@ class ExternalUserController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users       = DB::table('vw_usuarios_moodle')->paginate(15);
-        $usersNumber = DB::table('vw_usuarios_moodle')->count();
+        $fromDate = $request->query('from_date');
+        $toDate = $request->query('to_date');
 
-        return view('dashboard', compact('users', 'usersNumber'));
+        $usersQuery = DB::table('vw_usuarios_moodle')
+            ->when($fromDate, fn ($query, $fromDate) => $query->whereDate('created_at', '>=', $fromDate))
+            ->when($toDate, fn ($query, $toDate) => $query->whereDate('created_at', '<=', $toDate));
+
+        $users = $usersQuery->paginate(15)->withQueryString();
+        $usersNumber = (clone $usersQuery)->count();
+
+        return view('dashboard', compact('users', 'usersNumber', 'fromDate', 'toDate'));
     }
 
     public function create()
@@ -71,6 +79,19 @@ class ExternalUserController extends Controller
 
         return redirect()->route('dashboard')
             ->with('status', 'Usuario externo eliminado exitosamente.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'selected_users' => 'required|array',
+            'selected_users.*' => 'integer|distinct|min:1',
+        ]);
+
+        UsuarioExterno::whereIn('id', $request->input('selected_users'))->delete();
+
+        return redirect()->route('dashboard', $request->only(['from_date', 'to_date']))
+            ->with('status', 'Usuarios seleccionados eliminados correctamente.');
     }
 
     // ─── Importación CSV ─────────────────────────────────────────────────────

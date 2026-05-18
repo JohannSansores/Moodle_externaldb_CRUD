@@ -77,77 +77,148 @@
 
             </div>
 
-            {{-- Users table --}}
-            <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg overflow-hidden">
-                <div class="p-6 overflow-x-auto">
-                    <table class="min-w-full text-sm text-left text-gray-600 dark:text-gray-300">
-                        <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-3 py-2">Usuario</th>
-                                <th class="px-3 py-2">Nombre</th>
-                                <th class="px-3 py-2">Apellido</th>
-                                <th class="px-3 py-2">Correo</th>
-                                <th class="px-3 py-2">CURP</th>
-                                <th class="px-3 py-2">Dependencia</th>
-                                <th class="px-3 py-2">Programa</th>
-                                <th class="px-3 py-2">Rol</th>
-                                <th class="px-3 py-2">Semestre</th>
-                                <th class="px-3 py-2 text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($users as $user)
-                                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-3 py-2 font-medium">{{ $user->username }}</td>
-                                    <td class="px-3 py-2">{{ $user->firstname }}</td>
-                                    <td class="px-3 py-2">{{ $user->lastname }}</td>
-                                    <td class="px-3 py-2">{{ $user->email }}</td>
-                                    <td class="px-3 py-2 font-mono text-xs">{{ $user->curp ?? '—' }}</td>
-                                    <td class="px-3 py-2">{{ $user->dependencia }}</td>
-                                    <td class="px-3 py-2">{{ $user->programa }}</td>
-                                    <td class="px-3 py-2">{{ $user->rol }}</td>
-                                    <td class="px-3 py-2">{{ $user->semestre }}</td>
-                                    <td class="px-3 py-2 flex justify-center gap-2">
+            {{-- Filters y bulk actions --}}
+            <div class="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] items-end">
+                <form action="{{ route('dashboard') }}" method="GET" class="grid gap-4 sm:grid-cols-3 items-end">
+                    <div>
+                        <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Desde</label>
+                        <input type="date" name="from_date" id="from_date"
+                               value="{{ old('from_date', $fromDate ?? '') }}"
+                               class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                    </div>
+                    <div>
+                        <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Hasta</label>
+                        <input type="date" name="to_date" id="to_date"
+                               value="{{ old('to_date', $toDate ?? '') }}"
+                               class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                            🔎 Filtrar
+                        </button>
+                        <a href="{{ route('dashboard') }}"
+                           class="inline-flex items-center justify-center rounded bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                            ♻️ Limpiar
+                        </a>
+                    </div>
+                </form>
 
-                                        <a href="{{ route('external-users.edit', $user->id) }}"
-                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium
-                                                  bg-blue-600 text-white hover:bg-blue-700">
-                                            ✏️ Editar
-                                        </a>
-
-                                        <form method="POST"
-                                              action="{{ route('external-users.destroy', $user->id) }}"
-                                              onsubmit="return confirm('¿Deseas eliminar este usuario?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium
-                                                           bg-red-600 text-white hover:bg-red-700">
-                                                🗑 Eliminar
-                                            </button>
-                                        </form>
-
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="px-3 py-6 text-center text-gray-500">
-                                        No se encontraron usuarios registrados.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="flex items-center justify-end gap-2">
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Total filtrado: <strong>{{ $usersNumber }}</strong></span>
                 </div>
             </div>
 
-            {{-- Paginación --}}
-            @if ($users->hasPages())
-                <div class="mt-4">
-                    {{ $users->links() }}
+            <form method="POST" action="{{ route('external-users.bulk.destroy') }}" onsubmit="return confirm('¿Deseas eliminar los usuarios seleccionados?');">
+                @csrf
+                <input type="hidden" name="from_date" value="{{ $fromDate ?? '' }}">
+                <input type="hidden" name="to_date" value="{{ $toDate ?? '' }}">
+
+                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg overflow-hidden">
+                    <div class="p-6 overflow-x-auto">
+                        <table class="min-w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                            <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-3 py-2">
+                                        <label class="inline-flex items-center">
+                                            <input id="select_all" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        </label>
+                                    </th>
+                                    <th class="px-3 py-2">Usuario</th>
+                                    <th class="px-3 py-2">Nombre</th>
+                                    <th class="px-3 py-2">Apellido</th>
+                                    <th class="px-3 py-2">Correo</th>
+                                    <th class="px-3 py-2">CURP</th>
+                                    <th class="px-3 py-2">Dependencia</th>
+                                    <th class="px-3 py-2">Programa</th>
+                                    <th class="px-3 py-2">Rol</th>
+                                    <th class="px-3 py-2">Semestre</th>
+                                    <th class="px-3 py-2">Fecha de creación</th>
+                                    <th class="px-3 py-2 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($users as $user)
+                                    <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-3 py-2">
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="selected_users[]" value="{{ $user->id }}" class="select-row h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            </label>
+                                        </td>
+                                        <td class="px-3 py-2 font-medium">{{ $user->username }}</td>
+                                        <td class="px-3 py-2">{{ $user->firstname }}</td>
+                                        <td class="px-3 py-2">{{ $user->lastname }}</td>
+                                        <td class="px-3 py-2">{{ $user->email }}</td>
+                                        <td class="px-3 py-2 font-mono text-xs">{{ $user->curp ?? '—' }}</td>
+                                        <td class="px-3 py-2">{{ $user->dependencia ?? ($user->dependencia_id ?? '—') }}</td>
+                                        <td class="px-3 py-2">{{ $user->programa ?? ($user->programa_id ?? '—') }}</td>
+                                        <td class="px-3 py-2">{{ $user->rol ?? ($user->rol_id ?? '—') }}</td>
+                                        <td class="px-3 py-2">{{ $user->semestre ?? ($user->semestre_id ?? '—') }}</td>
+                                        <td class="px-3 py-2">{{ $user->created_at ? \Illuminate\Support\Carbon::parse($user->created_at)->format('d/m/Y H:i') : '—' }}</td>
+                                        <td class="px-3 py-2 flex justify-center gap-2">
+
+                                            <a href="{{ route('external-users.edit', $user->id) }}"
+                                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium
+                                                      bg-blue-600 text-white hover:bg-blue-700">
+                                                ✏️ Editar
+                                            </a>
+
+                                            <form method="POST"
+                                                  action="{{ route('external-users.destroy', $user->id) }}"
+                                                  onsubmit="return confirm('¿Deseas eliminar este usuario?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium
+                                                               bg-red-600 text-white hover:bg-red-700">
+                                                    🗑 Eliminar
+                                                </button>
+                                            </form>
+
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="12" class="px-3 py-6 text-center text-gray-500">
+                                            No se encontraron usuarios registrados.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            @endif
+
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 px-6 pb-6">
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                        🗑 Eliminar seleccionados
+                    </button>
+                    @if ($users->hasPages())
+                        <div class="w-full lg:w-auto">
+                            {{ $users->links() }}
+                        </div>
+                    @endif
+                </div>
+            </form>
 
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAll = document.querySelector('#select_all');
+            const rows = document.querySelectorAll('input.select-row[type="checkbox"]');
+
+            if (!selectAll) {
+                return;
+            }
+
+            selectAll.addEventListener('change', function () {
+                rows.forEach(function (checkbox) {
+                    checkbox.checked = selectAll.checked;
+                });
+            });
+        });
+    </script>
 </x-app-layout>

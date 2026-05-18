@@ -22,7 +22,7 @@ Route::get('/register', [RegistrationController::class, 'show'])
 Route::post('/register', [RegistrationController::class, 'store'])
     ->name('register.store');
 
-Route::post('/validate-field', [RegistrationController::class, 'validateField'])
+Route::post('/validate-field', [App\Http\Controllers\RegistrationController::class, 'validateField'])
     ->name('validate.field');
 
 // Email verification routes
@@ -66,6 +66,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/external-users/import/form', [ExternalUserController::class, 'importForm'])->name('external-users.import.form');
     Route::get('/external-users/import/template', [ExternalUserController::class, 'importTemplate'])->name('external-users.import.template');
     Route::post('/external-users/import', [ExternalUserController::class, 'import'])->name('external-users.import');
+    Route::post('/external-users/bulk-delete', [ExternalUserController::class, 'bulkDestroy'])->name('external-users.bulk.destroy');
 
     Route::resource('external-users', ExternalUserController::class)->except(['index', 'show']);
 
