@@ -1,4 +1,26 @@
 <x-guest-layout>
+
+    <x-slot name="head">
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
+        <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
+    </x-slot>
+
+    <div class="w-full sm:max-w-2xl mx-auto mt-10 mb-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl overflow-hidden">
+        <div class="px-8 pt-10 pb-4 flex justify-center">
+            <div class="flex items-center justify-center p-2 transition-transform duration-500 hover:scale-105">
+                <img src="{{ asset('images/logo_uady.svg') }}" 
+                    alt="Logo UADY" 
+                    class="h-32 w-auto drop-shadow-lg filter brightness-100 dark:brightness-90 contrast-125" />
+            </div>
+        </div>
+    </div>
+        
+        <!-- Título mejorado -->
+    <h1 class="text-4xl font-bold text-center tracking-wide text-[black] dark:text-[white] inline-block mx-auto mb-6 block">
+            Registro de Usuario
+        
+    </h1>
+    
     @if (session('status'))
         <div class="mb-4 font-medium text-sm text-green-600">
             {{ session('status') }}
@@ -16,21 +38,21 @@
 
         <!-- Name -->
         <div>
-            <x-input-label for="name" value="Nombre" />
+            <x-input-label for="name" value="Nombre" class="text-black"/>
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
         <!-- Surname -->
         <div class="mt-4">
-            <x-input-label for="surname" value="Apellido" />
+            <x-input-label for="surname" value="Apellido" class="text-black"/>
             <x-text-input id="surname" class="block mt-1 w-full" type="text" name="surname" :value="old('surname')" required autocomplete="family-name" />
             <x-input-error :messages="$errors->get('surname')" class="mt-2" />
         </div>
 
         <!-- Username -->
         <div class="mt-4">
-            <x-input-label for="username" value="Nombre de Usuario" />
+            <x-input-label for="username" value="Nombre de Usuario" class="text-black"/>
             <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autocomplete="username" 
                 oninput="validarCampoRealTime('username', this.value)" />
             <div id="feedback-username" class="text-xs mt-1 hidden"></div>
@@ -39,7 +61,7 @@
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="email" value="Correo electrónico" />
+            <x-input-label for="email" value="Correo electrónico" class="text-black"/>
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="email" 
                 oninput="validarCampoRealTime('email', this.value)" />
             <div id="feedback-email" class="text-xs mt-1 hidden"></div>
@@ -48,7 +70,7 @@
 
         <!-- Confirm Email Address -->
         <div class="mt-4">
-            <x-input-label for="email_confirmation" value="Confirmar correo electrónico" />
+            <x-input-label for="email_confirmation" value="Confirmar correo electrónico" class="text-black"/>
             <x-text-input id="email_confirmation" class="block mt-1 w-full" type="email" name="email_confirmation" required 
                 oninput="compararCorreos()" />
             <div id="feedback-email-conf" class="text-xs mt-1 hidden"></div>
@@ -57,7 +79,7 @@
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" value="Contraseña" />
+            <x-input-label for="password" value="Contraseña" class="text-black"/>
 
             <div class="relative">
                 <x-text-input id="password" class="block mt-1 w-full"
@@ -80,7 +102,7 @@
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" value="Confirmar contraseña" />
+            <x-input-label for="password_confirmation" value="Confirmar contraseña" class="text-black"/>
 
             <div class="relative">
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
@@ -103,7 +125,7 @@
 
         <!-- Curp -->
         <div class="mt-4">
-            <x-input-label for="curp" value="CURP" />
+            <x-input-label for="curp" value="CURP" class="text-black"/>
             <x-text-input id="curp" class="block mt-1 w-full" type="text" name="curp" 
                 :value="old('curp')" required 
                 oninput="validarCampoRealTime('curp', this.value)" />
@@ -113,7 +135,7 @@
 
         <!-- Dependency -->
         <div class="mt-4">
-            <x-input-label for="id_dependencia" value="Dependencia" />
+            <x-input-label for="id_dependencia" value="Dependencia" class="text-black"/>
             <select id="id_dependencia" name="id_dependencia" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                 <option value="">-- Seleccionar --</option>
                 @foreach($dependencias as $dep)
@@ -124,7 +146,7 @@
 
          <!-- Programa -->
         <div class="mt-4">
-            <x-input-label for="id_programa" value="Programa" />
+            <x-input-label for="id_programa" value="Programa" class="text-black"/>
             <select id="id_programa" name="id_programa" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                 <option value="">-- Seleccionar --</option>
                 @foreach($programas as $prog)
@@ -144,18 +166,19 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('admin.login') }}">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003B5C]" href="{{ route('admin.login') }}">
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
+            <x-primary-button class="ms-4 bg-[#003B5C] hover:bg-[#002a44]">
                 {{ __('Register') }}
             </x-primary-button>
         </div>
+      
     </form>
-</x-guest-layout>
-<script>
-    let timers = {};
+    <footer class="mt-10 bg-[#BD8F1E] h-8"></footer>
+    <script>
+        let timers = {};
 
     function validarCampoRealTime(field, value) {
         const feedback = document.getElementById(`feedback-${field}`);
@@ -291,3 +314,10 @@ function compararPasswords() {
     }
 }
 </script>
+</x-guest-layout>
+
+<!--
+<div style="width: 100%; height: 200px; overflow: hidden;">
+  <img src="{{ asset('images/edificio_central.jpg') }}" alt="Edificio Central UADY" style="width: 100%; height: 100%; object-fit: fill;" />
+</div>
+-->

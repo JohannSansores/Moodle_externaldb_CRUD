@@ -1,4 +1,22 @@
 <x-guest-layout>
+
+    <x-slot name="head">
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
+        <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
+    </x-slot>
+
+<div class="w-full sm:max-w-md mx-auto px-8 py-8 bg-white dark:bg-gray-800 rounded-2xl mb-6">
+    
+    <div class="w-full flex justify-center">
+            <div class="flex items-center justify-center p-2 transition-transform duration-500 hover:scale-105">
+                <img src="{{ asset('images/logo_uady.svg') }}" 
+                    alt="Logo UADY" 
+                    class="h-32 w-auto drop-shadow-lg filter brightness-100 dark:brightness-90 contrast-125" />
+            </div>
+    </div>
+    
+</div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
