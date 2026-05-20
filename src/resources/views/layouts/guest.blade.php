@@ -23,7 +23,7 @@
             {!! $head !!}
         @endisset
     </head>
-<body class="font-sans text-gray-900 antialiased bg-white dark:bg-gray-900 dark:text-gray-100" style="background-image: url('{{ asset('images/edificio_central.jpg') }}'); background-size: cover; background-position: center; background-attachment: fixed;">
+<body class="font-sans text-gray-900 antialiased bg-white dark:bg-gray-900 dark:text-gray-100" style="background-image: url({{ asset('images/edificio_central.jpg') }}); background-size: cover; background-position: center; background-attachment: fixed;">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
         
         <div class="w-full sm:max-w-2xl mt-6 px-6 py-4 bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">

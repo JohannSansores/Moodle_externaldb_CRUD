@@ -1,50 +1,33 @@
-#!/bin/sh
+﻿#!/bin/sh
+set -e
 
-echo "Starting entrypoint script"
+echo "Starting docker-entrypoint.sh"
 
-# Wait for database
-echo "Sleeping 15"
-sleep 15
-echo "Sleep done"
+# short wait for database to allow dependent services to start
+sleep 5
 
-# Set permissions
-echo "Setting permissions"
-chmod -R 777 storage bootstrap/cache
-echo "Permissions set"
+# set permissive permissions (adjust as needed)
+chmod -R 777 storage bootstrap/cache || true
 
-# 1. Copy .env if it doesn't exist
-if [ ! -f .env ]; then
-    echo "Copying .env"
+# copy .env if missing
+if [ ! -f .env ] && [ -f .env.example ]; then
     cp .env.example .env
 fi
 
-# 2. Install dependencies (optional, if your container doesn't already have them)
-echo "Installing composer"
-composer install --no-dev --optimize-autoloader
+# install composer dependencies if vendor missing
+if [ ! -d vendor ]; then
+    composer install --no-interaction --no-dev --optimize-autoloader || true
+fi
 
-# 3. Generate app key if it doesn't exist
-echo "Generating key"
-php artisan key:generate --force
+# artisan setup (best-effort, don't fail container on DB issues)
+php artisan key:generate --force || true
+php artisan config:clear || true
+php artisan migrate --force || true
+php artisan db:seed --class=AdminUserSeeder || true
+php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
 
-# 4. Clear config cache
-echo "Clearing config"
-php artisan config:clear
-
-# 5. Run migrations
-echo "Migrating"
-php artisan migrate --force
-
-# 6. Seed superadmin
-echo "Seeding"
-php artisan db:seed --class=AdminUserSeeder || echo "Seeding failed, continuing..."
-
-# 7. Cache config/routes/views
-echo "Caching config"
-php artisan config:cache
-echo "Caching routes"
-php artisan route:cache
-echo "Caching views"
-php artisan view:cache
-
-echo "Done"
+echo "Entrypoint finished, launching php-fpm"
 exec php-fpm
+

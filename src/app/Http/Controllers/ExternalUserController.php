@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateExternalUserRequest;
 use App\Models\Catalogo;
 use App\Models\UsuarioExterno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ExternalUserController extends Controller
@@ -23,8 +24,14 @@ class ExternalUserController extends Controller
 
     public function index()
     {
-        $users       = DB::table('vw_usuarios_moodle')->paginate(15);
-        $usersNumber = DB::table('vw_usuarios_moodle')->count();
+        $usersNumber = Cache::remember('dashboard_users_count', 300, function () {
+            return DB::table('vw_usuarios_moodle')->count();
+        });
+
+        $query = DB::table('vw_usuarios_moodle')->orderBy('id');
+        $users = request()->boolean('fast')
+            ? $query->limit(100)->get()
+            : $query->simplePaginate(15);
 
         return view('dashboard', compact('users', 'usersNumber'));
     }
@@ -37,6 +44,7 @@ class ExternalUserController extends Controller
     public function store(StoreExternalUserRequest $request)
     {
         UsuarioExterno::create($request->validated());
+        Cache::forget('dashboard_users_count');
 
         return redirect()->route('dashboard')
             ->with('status', 'Usuario externo creado exitosamente.');
@@ -60,6 +68,7 @@ class ExternalUserController extends Controller
         }
 
         $user->update($data);
+        Cache::forget('dashboard_users_count');
 
         return redirect()->route('dashboard')
             ->with('status', 'Usuario externo actualizado exitosamente.');
@@ -68,6 +77,7 @@ class ExternalUserController extends Controller
     public function destroy(string $id)
     {
         UsuarioExterno::findOrFail($id)->delete();
+        Cache::forget('dashboard_users_count');
 
         return redirect()->route('dashboard')
             ->with('status', 'Usuario externo eliminado exitosamente.');

@@ -9,7 +9,7 @@ services:
     environment:
       - DB_HOST=database
       - DB_CONNECTION=mysql
-    entrypoint: sh -c '/usr/local/bin/docker-entrypoint.sh'
+    command: ["php-fpm"]
     volumes:
       - ./src:/var/www/html
       - ./docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf

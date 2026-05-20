@@ -103,10 +103,10 @@
                                     <td class="px-3 py-2">{{ $user->lastname }}</td>
                                     <td class="px-3 py-2">{{ $user->email }}</td>
                                     <td class="px-3 py-2 font-mono text-xs">{{ $user->curp ?? '—' }}</td>
-                                    <td class="px-3 py-2">{{ $user->dependencia }}</td>
-                                    <td class="px-3 py-2">{{ $user->programa }}</td>
-                                    <td class="px-3 py-2">{{ $user->rol }}</td>
-                                    <td class="px-3 py-2">{{ $user->semestre }}</td>
+                                    <td class="px-3 py-2">{{ $user->id_dependencia ?? '—' }}</td>
+                                    <td class="px-3 py-2">{{ $user->id_programa ?? '—' }}</td>
+                                    <td class="px-3 py-2">{{ $user->id_rol ?? '—' }}</td>
+                                    <td class="px-3 py-2">{{ $user->id_semestre ?? '—' }}</td>
                                     <td class="px-3 py-2 flex justify-center gap-2">
 
                                         <a href="{{ route('external-users.edit', $user->id) }}"
@@ -142,7 +142,7 @@
             </div>
 
             {{-- Paginación --}}
-            @if ($users->hasPages())
+            @if (method_exists($users, 'hasPages') && $users->hasPages())
                 <div class="mt-4">
                     {{ $users->links() }}
                 </div>
