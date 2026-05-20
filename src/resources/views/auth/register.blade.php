@@ -8,9 +8,12 @@
     <div class="w-full sm:max-w-2xl mx-auto mt-10 mb-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl overflow-hidden">
         <div class="px-8 pt-10 pb-4 flex justify-center">
             <div class="flex items-center justify-center p-2 transition-transform duration-500 hover:scale-105">
-                <img src="{{ asset('images/logo_uady.svg') }}" 
-                    alt="Logo UADY" 
-                    class="h-32 w-auto drop-shadow-lg filter brightness-100 dark:brightness-90 contrast-125" />
+                <img src="{{ asset('images/logo_uady.svg') }}"
+                    alt="Logo UADY"
+                    class="h-32 w-auto drop-shadow-lg filter brightness-100 contrast-125 dark:hidden" />
+                <img src="{{ asset('images/logo-uady-blanco.png') }}"
+                    alt="Logo UADY blanco"
+                    class="hidden h-32 w-auto drop-shadow-lg filter brightness-100 dark:brightness-90 contrast-125 dark:block" />
             </div>
         </div>
     </div>
