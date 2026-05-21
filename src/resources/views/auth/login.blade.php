@@ -1,10 +1,5 @@
 <x-guest-layout>
 
-    <x-slot name="head">
-        <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
-        <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
-    </x-slot>
-
 <div class="w-full sm:max-w-md mx-auto px-8 py-8 bg-white dark:bg-gray-800 rounded-2xl mb-6">
     
     <div class="w-full flex justify-center">

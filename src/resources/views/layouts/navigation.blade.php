@@ -6,7 +6,8 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/logo_uady.svg') }}" alt="Logo UADY" class="h-8 w-auto">
+                        <img src="{{ asset('images/logo_uady.svg') }}" alt="Logo UADY" class="h-8 w-auto dark:hidden filter brightness-100 contrast-125" />
+                        <img src="{{ asset('images/logo-uady-blanco.png') }}" alt="Logo UADY blanco" class="hidden h-8 w-auto dark:block" />
                     </a>
                 </div>
 
