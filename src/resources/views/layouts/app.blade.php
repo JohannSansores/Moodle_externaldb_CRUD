@@ -12,10 +12,9 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
          <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
-        <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
-        <link rel="apple-touch-icon" href="{{ asset('images/favicon.ico') }}">
-        
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}?v=2">
+        <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}?v=2">
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

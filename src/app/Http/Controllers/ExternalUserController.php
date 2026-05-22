@@ -25,10 +25,10 @@ class ExternalUserController extends Controller
     public function index()
     {
         $usersNumber = Cache::remember('dashboard_users_count', 300, function () {
-            return DB::table('vw_usuarios_moodle')->count();
+            return DB::table('usuarios_externos')->count();
         });
 
-        $query = DB::table('vw_usuarios_moodle')->orderBy('id');
+        $query = DB::table('usuarios_externos')->orderBy('id');
         $users = request()->boolean('fast')
             ? $query->limit(100)->get()
             : $query->simplePaginate(15);
