@@ -6,8 +6,8 @@
                 <!-- Logo -->
                 <div class="w-full flex justify-center mb-8">
                     <div class="flex items-center justify-center p-2">
-                        <img src="{{ asset('images/logo_uady.svg') }}" alt="Logo UADY" class="h-20 w-auto dark:hidden object-contain drop-shadow-lg inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 dark:border-indigo-600 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out" />
-                        <img src="{{ asset('images/logo-uady-blanco.png') }}" alt="Logo UADY blanco" class="hidden h-20 w-auto dark:block object-contain drop-shadow-lg inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 dark:border-indigo-600 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out" />
+                        <img src="{{ asset('images/logo_uady.svg') }}" alt="Logo UADY" class="h-20 w-auto dark:hidden object-contain drop-shadow-lg inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out" />
+                        <img src="{{ asset('images/logo-uady-blanco.png') }}" alt="Logo UADY blanco" class="hidden h-20 w-auto dark:block object-contain drop-shadow-lg inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out" />
                     </div>
                 </div>
                 <!-- Navigation Links -->
