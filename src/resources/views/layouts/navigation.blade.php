@@ -1,20 +1,15 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-16" style="height: 5rem;">
             <div class="flex">
-                <!-- Logo 
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <img src="{{ asset('images/logo_uady.svg') }}" 
-                            alt="Logo UADY" 
-                            class="h-7 sm:h-4 md:h-5 w-auto dark:hidden object-contain" />
-                        <img src="{{ asset('images/logo-uady-blanco.png') }}" 
-                            alt="Logo UADY blanco" 
-                            class="hidden h-7 sm:h-4 md:h-5 w-auto dark:block object-contain" />
-                    </a>
-                </div>-->
-
+                <!-- Logo -->
+                <div class="w-full flex justify-center mb-8">
+                    <div class="flex items-center justify-center p-2">
+                        <img src="{{ asset('images/logo_uady.svg') }}" alt="Logo UADY" class="h-20 w-auto dark:hidden object-contain drop-shadow-lg inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 dark:border-indigo-600 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out" />
+                        <img src="{{ asset('images/logo-uady-blanco.png') }}" alt="Logo UADY blanco" class="hidden h-20 w-auto dark:block object-contain drop-shadow-lg inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 dark:border-indigo-600 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out" />
+                    </div>
+                </div>
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">

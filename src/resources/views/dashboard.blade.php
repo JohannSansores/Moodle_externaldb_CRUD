@@ -5,19 +5,11 @@
         </h2>
     </x-slot>
 
-    <div class="py-12" style="background-image: url({{ asset('images/edificio_central.jpg') }}); background-size: cover; background-position: center; background-attachment: fixed;">
+    <div class="py-12" bg-white dark:bg-gray-800  background-size: cover; background-position: center; background-attachment: fixed;">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Contenedor sólido (sin transparencias) -->
             <div class="bg-white dark:bg-gray-800 rounded-[30px] shadow-xl overflow-hidden">
                 <div class="px-6 py-8 sm:px-10">
-
-                    <!-- Logo centrado -->
-                    <div class="w-full flex justify-center mb-8">
-                        <div class="flex items-center justify-center p-2">
-                            <img src="{{ asset('images/logo_uady.svg') }}" alt="Logo UADY" class="h-20 w-auto dark:hidden object-contain drop-shadow-lg" />
-                            <img src="{{ asset('images/logo-uady-blanco.png') }}" alt="Logo UADY blanco" class="hidden h-20 w-auto dark:block object-contain drop-shadow-lg" />
-                        </div>
-                    </div>
 
                     <!-- Mensajes de estado -->
                     @if (session('status'))
