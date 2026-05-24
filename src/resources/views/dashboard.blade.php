@@ -39,14 +39,14 @@
                                 <a href="{{ route('external-users.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-black dark:text-white shadow-md hover:bg-blue-700 transition">
                                     ➕ Crear usuario
                                 </a>
-                                <a href="{{ route('external-users.import.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 text-black dark:text-white shadow-md hover:bg-indigo-700 transition">
+                                <a href="{{ route('external-users.import.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-500 text-black dark:text-white shadow-md hover:bg-indigo-700 transition">
                                     📤 Importar CSV
                                 </a>
                                 @if(auth()->user()->role === 'superadmin')
                                     <a href="{{ route('admins.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-green-600 text-black dark:text-white shadow-md hover:bg-green-700 transition">
                                         👑 Administrar Admins
                                     </a>
-                                    <a href="{{ route('database.export') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-700 text-black dark:text-white shadow-md hover:bg-gray-800 transition">
+                                    <a href="{{ route('database.export') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-500 text-black dark:text-white shadow-md hover:bg-gray-800 transition">
                                         🗄️ Exportar estructura BD
                                     </a>
                                 @endif
@@ -55,10 +55,22 @@
 
                         <!-- Catálogos con colores sólidos -->
                         <div class="bg-gray-100 dark:bg-gray-700 rounded-xl p-4 flex flex-wrap gap-3 border border-gray-200 dark:border-gray-600">
-                            <a href="{{ route('catalogs.show', 'dependencias') }}" class="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-dark-gray hover:bg-emerald-700 shadow transition">🏢 Dependencias</a>
-                            <a href="{{ route('catalogs.show', 'programas') }}" class="px-4 py-2 rounded-lg text-sm font-medium bg-sky-600 text-dark-gray hover:bg-sky-700 shadow transition">📘 Programas</a>
-                            <a href="{{ route('catalogs.show', 'roles') }}" class="px-4 py-2 rounded-lg text-sm font-medium bg-amber-600 text-dark-gray hover:bg-amber-700 shadow transition">👤 Roles</a>
-                            <a href="{{ route('catalogs.show', 'semestres') }}" class="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-dark-gray hover:bg-purple-700 shadow transition">📅 Semestres</a>
+                            <a href="{{ route('catalogs.show', 'dependencias') }}" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-dark-200 text-black dark:bg-gray-200 hover:bg-emerald-700 shadow transition">
+                            🏢 Dependencias
+                            </a>
+                            <a href="{{ route('catalogs.show', 'programas') }}" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-dark-400 text-black dark:bg-gray-200 hover:bg-sky-700 shadow transition">
+                            📘 Programas
+                            </a>
+                            <a href="{{ route('catalogs.show', 'roles') }}" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-dark-400 text-black dark:bg-gray-200 hover:bg-amber-700 shadow transition">
+                            👤 Roles
+                            </a>
+                            <a href="{{ route('catalogs.show', 'semestres') }}" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-dark-400 text-black dark:bg-gray-200 hover:bg-purple-700 shadow transition">
+                            📅 Semestres
+                            </a>
                         </div>
                     </div>
 
