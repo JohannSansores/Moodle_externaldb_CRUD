@@ -1,31 +1,33 @@
-#!/bin/sh
+﻿#!/bin/sh
 set -e
 
-# 1. Copy .env if it doesn't exist
-if [ ! -f .env ]; then
+echo "Starting docker-entrypoint.sh"
+
+# short wait for database to allow dependent services to start
+sleep 5
+
+# set permissive permissions (adjust as needed)
+chmod -R 777 storage bootstrap/cache || true
+
+# copy .env if missing
+if [ ! -f .env ] && [ -f .env.example ]; then
     cp .env.example .env
 fi
 
-# 2. Install dependencies (optional, if your container doesn't already have them)
-composer install --no-dev --optimize-autoloader
+# install composer dependencies if vendor missing
+if [ ! -d vendor ]; then
+    composer install --no-interaction --no-dev --optimize-autoloader || true
+fi
 
-# 3. Generate app key if it doesn't exist
-php artisan key:generate --force
+# artisan setup (best-effort, don't fail container on DB issues)
+php artisan key:generate --force || true
+php artisan config:clear || true
+php artisan migrate --force || true
+php artisan db:seed --class=AdminUserSeeder || true
+php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
 
-# 4. Run migrations
-php artisan migrate --force
-
-# 5. Seed superadmin
-php artisan db:seed --class=AdminUserSeeder
-
-# 6. Cache config/routes/views
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# 7. Set permissions
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-
-# 8. Finally, run the main command (PHP-FPM or artisan serve)
+echo "Entrypoint finished, launching php-fpm"
 exec php-fpm
+

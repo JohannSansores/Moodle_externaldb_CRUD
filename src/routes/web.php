@@ -8,13 +8,38 @@ use App\Http\Controllers\ExternalUserController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DatabaseExportController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\RegisteredUserController; 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
-// Public page for singup
+// Public authentication routes
 Route::get('/', [RegistrationController::class, 'show'])
     ->name('register.form');
 
+Route::get('/register', [RegistrationController::class, 'show'])
+    ->name('register.show');
+
 Route::post('/register', [RegistrationController::class, 'store'])
     ->name('register.store');
+
+Route::post('/validate-field', [RegistrationController::class, 'validateField'])
+    ->name('validate.field');
+
+// Email verification routes
+//Route::get('/email/verify', function () {
+//    return view('auth.verify-email');
+//})->name('verification.notice');
+
+// Ruoute that handles the email verification link
+//Route::get('/email/verify/{id}/{hash}', [RegistrationController::class, 'verify'])
+//    ->middleware(['signed', 'throttle:6,1'])
+//    ->name('verification.verify');
+
+// Route of successful registration
+Route::get('/register/success', function () {
+    return view('auth.register-success');
+})->name('register.success');
+
 
 // Login admin
 Route::get('/admin', [AuthenticatedSessionController::class, 'create'])
@@ -27,13 +52,13 @@ Route::post('/admin/logout', [AuthenticatedSessionController::class, 'logout'])
     ->name('admin.logout');
 
 // Superadmin routes
-Route::middleware(['auth', 'superadmin'])->group(function () {
+Route::middleware(['auth', 'verified', 'superadmin'])->group(function () {
     Route::resource('admins', AdminController::class)->except(['show', 'edit', 'update']);
     Route::get('/database/export', [DatabaseExportController::class, 'export'])->name('database.export');
 });
 
 // Admin & Superadmin routes (CRUD)
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
     Route::get('/dashboard', [ExternalUserController::class, 'index'])->name('dashboard');
 
@@ -52,8 +77,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 });
 
-// Profile routes (all authenticated users)
-Route::middleware('auth')->group(function () {
+// Profile routes (all authenticated users with verified email)
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
