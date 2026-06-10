@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioExterno extends Model
 {
-    protected $table = 'usuarios_externos';
+    protected $table = 'moodle_usuarios';
 
     public $timestamps = false;
 

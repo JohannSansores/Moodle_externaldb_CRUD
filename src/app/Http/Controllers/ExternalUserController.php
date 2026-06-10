@@ -96,34 +96,49 @@ class ExternalUserController extends Controller
             ->with('status', 'Usuario externo actualizado exitosamente.');
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        UsuarioExterno::findOrFail($id)->delete();
-        Cache::forget('dashboard_users_count');
+    DB::transaction(function () use ($id) {
+        UsuarioExterno::where('id', $id)->delete();
+    });
 
-        return redirect()->route('dashboard')
-            ->with('status', 'Usuario externo eliminado exitosamente.');
+    Cache::forget('dashboard_users_count');
+    Cache::forget('moodle-externaldb-crud-cache-dashboard_users_count');
+    Cache::forget('moodle-externaldb-crud-cache-dashboard_users');
+    Cache::forget('moodle-externaldb-crud-cache-dashboard');
+
+    if ($request->wantsJson() || $request->ajax()) {
+        return response()->noContent(); // 204 — el fetch del dashboard lo detecta como éxito
+    }
+
+    return redirect()->route('dashboard')
+        ->with('status', 'Base de datos sincronizada y registros actualizados.');
     }
 
     public function bulkDestroy(Request $request)
     {
-        $request->validate([
-            'selected_users' => 'required|array',
-            'selected_users.*' => 'integer|distinct|min:1',
-        ]);
+    $request->validate([
+        'selected_users'   => 'required|array',
+        'selected_users.*' => 'integer|distinct|min:1',
+    ]);
 
-        UsuarioExterno::whereIn('id', $request->input('selected_users'))->delete();
+    $ids = $request->input('selected_users');
 
-        return redirect()->route('dashboard', $request->only([
-            'from_date',
-            'to_date',
-            'curp',
-            'dependencia',
-            'programa',
-            'rol',
-            'semestre',
-        ]))
-            ->with('status', 'Usuarios seleccionados eliminados correctamente.');
+    $deletedCount = DB::transaction(function () use ($ids) {
+        return UsuarioExterno::whereIn('id', $ids)->delete();
+    });
+
+    Cache::forget('dashboard_users_count');
+    Cache::forget('moodle-externaldb-crud-cache-dashboard_users_count');
+    Cache::forget('moodle-externaldb-crud-cache-dashboard_users');
+    Cache::forget('moodle-externaldb-crud-cache-dashboard');
+
+    if ($request->wantsJson() || $request->ajax()) {
+        return response()->json(['deleted' => $deletedCount]);
+    }
+
+    return redirect()->route('dashboard')
+        ->with('status', $deletedCount . ' usuario(s) eliminado(s) correctamente.');
     }
 
     // ─── Importación CSV ─────────────────────────────────────────────────────
