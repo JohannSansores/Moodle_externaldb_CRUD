@@ -27,23 +27,35 @@ class ExternalUserController extends Controller
     {
         $fromDate = $request->query('from_date');
         $toDate = $request->query('to_date');
-        $usersNumber = Cache::remember('dashboard_users_count', 300, function () {
-            return DB::table('usuarios_externos')->count();
-        });
+        $curp = $request->query('curp');
+        $dependencia = $request->query('dependencia');
+        $programa = $request->query('programa');
+        $rol = $request->query('rol');
+        $semestre = $request->query('semestre');
 
-        $query = DB::table('usuarios_externos')->orderBy('id');
-        $users = request()->boolean('fast')
-            ? $query->limit(100)->get()
-            : $query->simplePaginate(15);
+        $catalogos = $this->catalogos();
 
         $usersQuery = DB::table('vw_usuarios_moodle')
             ->when($fromDate, fn ($query, $fromDate) => $query->whereDate('created_at', '>=', $fromDate))
-            ->when($toDate, fn ($query, $toDate) => $query->whereDate('created_at', '<=', $toDate));
+            ->when($toDate, fn ($query, $toDate) => $query->whereDate('created_at', '<=', $toDate))
+            ->when($curp, fn ($query, $curp) => $query->where('curp', 'like', "%{$curp}%"))
+            ->when($dependencia, fn ($query, $dependencia) => $query->where('id_dependencia', $dependencia))
+            ->when($programa, fn ($query, $programa) => $query->where('id_programa', $programa))
+            ->when($rol, fn ($query, $rol) => $query->where('id_rol', $rol))
+            ->when($semestre, fn ($query, $semestre) => $query->where('id_semestre', $semestre));
 
         $users = $usersQuery->paginate(15)->withQueryString();
         $usersNumber = (clone $usersQuery)->count();
 
-        return view('dashboard', compact('users', 'usersNumber', 'fromDate', 'toDate'));
+        return view('dashboard', array_merge(
+            compact('users', 'usersNumber', 'fromDate', 'toDate', 'curp', 'dependencia', 'programa', 'rol', 'semestre'),
+            [
+                'dependencias' => $catalogos['dependencias']->pluck('nombre', 'id'),
+                'programas'    => $catalogos['programas']->pluck('nombre', 'id'),
+                'roles'        => $catalogos['roles']->pluck('nombre', 'id'),
+                'semestres'    => $catalogos['semestres']->pluck('nombre', 'id'),
+            ]
+        ));
     }
 
     public function create()
@@ -102,7 +114,15 @@ class ExternalUserController extends Controller
 
         UsuarioExterno::whereIn('id', $request->input('selected_users'))->delete();
 
-        return redirect()->route('dashboard', $request->only(['from_date', 'to_date']))
+        return redirect()->route('dashboard', $request->only([
+            'from_date',
+            'to_date',
+            'curp',
+            'dependencia',
+            'programa',
+            'rol',
+            'semestre',
+        ]))
             ->with('status', 'Usuarios seleccionados eliminados correctamente.');
     }
 
