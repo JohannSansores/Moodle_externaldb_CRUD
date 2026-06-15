@@ -1,8 +1,3 @@
-@php
-    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    header("Cache-Control: post-check=0, pre-check=0", false);
-    header("Pragma: no-cache");
-@endphp
 <x-app-layout>
     <script>
         window.addEventListener('pageshow', function(event) {
@@ -43,7 +38,7 @@
 
                     <div class="mb-6 space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div class="text-gray-900 dark:text-gray-100 bg-gray-800 dark:bg-gray-800 px-3 py-1 rounded-full text-sm">
+                            <div class="text-gray-900 dark:text-gray-100 bg-gray-400 dark:bg-gray-800 px-3 py-1 rounded-full text-sm">
                                 <strong>{{ $usersNumber }}</strong> usuario(s) registrados
                             </div>
                             <div class="flex flex-wrap gap-2">
@@ -52,6 +47,9 @@
                                 </a>
                                 <a href="{{ route('external-users.import.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-500 text-white shadow-md hover:bg-indigo-700 transition">
                                     📤 Importar CSV
+                                </a>
+                                <a href="{{ route('register-config.edit') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-500 text-white shadow-md hover:bg-amber-600 transition">
+                                    ⚙️ Configurar registro
                                 </a>
                                 @if(auth()->user()->role === 'superadmin')
                                     <a href="{{ route('admins.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-green-600 text-white shadow-md hover:bg-green-700 transition">
@@ -266,11 +264,12 @@
                         </div>
 
                         <div class="mt-4 flex flex-wrap items-center justify-between gap-3 bg-gray-100 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-900">
-                            <button type="submit" class="inline-flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 shadow-sm transition">
+                            <button type="button" id="bulk-delete-btn"
+                                class="inline-flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 shadow-sm transition">
                                 🗑 Eliminar seleccionados
                             </button>
                             <button type="button" onclick="window.location.replace(window.location.origin + window.location.pathname);" class="inline-flex items-center justify-center rounded border border-gray-300 bg-gray-200 px-4 py-2 text-sm font-medium text-gray-900 hover:border-gray-400 hover:bg-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-gray-500 dark:hover:bg-gray-600 transition w-full sm:w-auto">
-                                    🔄 Actualizar Tabla
+                                     Actualizar Tabla
                             </button>
                             
                             @if (method_exists($users, 'hasPages') && $users->hasPages())
@@ -296,6 +295,60 @@
             if (selectAll) {
                 selectAll.addEventListener('change', function () {
                     rows.forEach(cb => cb.checked = selectAll.checked);
+                });
+            }
+
+            // ── Eliminación bulk en tiempo real ─────────────────────────
+            const bulkBtn = document.getElementById('bulk-delete-btn');
+            if (bulkBtn) {
+                bulkBtn.addEventListener('click', async function () {
+                    const checked = [...document.querySelectorAll('input.select-row:checked')];
+                    if (checked.length === 0) {
+                        alert('Selecciona al menos un usuario.');
+                        return;
+                    }
+                    if (!confirm(`¿Deseas eliminar ${checked.length} usuario(s) seleccionado(s)?`)) return;
+
+                    bulkBtn.disabled = true;
+                    bulkBtn.textContent = '⏳ Eliminando...';
+
+                    const ids   = checked.map(cb => cb.value);
+                    const token = '{{ csrf_token() }}';
+                    const url   = '{{ route("external-users.bulk.destroy") }}';
+
+                    const body = new URLSearchParams();
+                    body.append('_token', token);
+                    ids.forEach(id => body.append('selected_users[]', id));
+
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': token },
+                            body,
+                        });
+
+                        if (res.ok) {
+                            checked.forEach(cb => {
+                                const row = cb.closest('tr[data-user-row]');
+                                if (row) {
+                                    row.style.transition = 'opacity 0.3s, transform 0.3s';
+                                    row.style.opacity    = '0';
+                                    row.style.transform  = 'translateX(20px)';
+                                    setTimeout(() => row.remove(), 300);
+                                }
+                            });
+                            const selectAll = document.getElementById('select_all');
+                            if (selectAll) selectAll.checked = false;
+                        } else {
+                            const err = await res.json().catch(() => ({}));
+                            alert(err.message ?? 'No se pudieron eliminar los usuarios.');
+                        }
+                    } catch (e) {
+                        alert('Error de red al intentar eliminar.');
+                    } finally {
+                        bulkBtn.disabled = false;
+                        bulkBtn.innerHTML = '🗑 Eliminar seleccionados';
+                    }
                 });
             }
 

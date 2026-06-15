@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,15 +43,46 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+        if (Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::clear($this->throttleKey());
+            return;
         }
 
-        RateLimiter::clear($this->throttleKey());
+        $user = User::where('email', $this->input('email'))->first();
+
+        if ($user && $this->validateLegacyPassword($user->getAuthPassword(), $this->input('password'))) {
+            $user->password = Hash::make($this->input('password'));
+            $user->save();
+            Auth::login($user, $this->boolean('remember'));
+            RateLimiter::clear($this->throttleKey());
+            return;
+        }
+
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
+    }
+
+    protected function validateLegacyPassword(string $storedPassword, string $plainPassword): bool
+    {
+        try {
+            if (Hash::check($plainPassword, $storedPassword)) {
+                return true;
+            }
+        } catch (\RuntimeException $exception) {
+            // El hash almacenado no es Bcrypt compatible; intentamos un comparador alternativo.
+        }
+
+        return $this->validateLegacyPlainOrLegacyHash($plainPassword, $storedPassword);
+    }
+
+    protected function validateLegacyPlainOrLegacyHash(string $plainPassword, string $storedPassword): bool
+    {
+        return hash_equals($storedPassword, $plainPassword)
+            || hash_equals($storedPassword, md5($plainPassword))
+            || hash_equals($storedPassword, sha1($plainPassword));
     }
 
     /**

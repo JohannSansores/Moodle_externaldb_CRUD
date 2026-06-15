@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ExternalUserController extends Controller
 {
@@ -35,7 +36,7 @@ class ExternalUserController extends Controller
 
         $catalogos = $this->catalogos();
 
-        $usersQuery = DB::table('vw_usuarios_moodle')
+        $usersQuery = $this->buildUsersQuery()
             ->when($fromDate, fn ($query, $fromDate) => $query->whereDate('created_at', '>=', $fromDate))
             ->when($toDate, fn ($query, $toDate) => $query->whereDate('created_at', '<=', $toDate))
             ->when($curp, fn ($query, $curp) => $query->where('curp', 'like', "%{$curp}%"))
@@ -56,6 +57,46 @@ class ExternalUserController extends Controller
                 'semestres'    => $catalogos['semestres']->pluck('nombre', 'id'),
             ]
         ));
+    }
+
+    private function buildUsersQuery()
+    {
+        if ($this->hasUsersView()) {
+            return DB::table('vw_usuarios_moodle');
+        }
+
+        return DB::table('moodle_usuarios as u')
+            ->select(
+                'u.id',
+                'u.username',
+                'u.password',
+                'u.firstname',
+                'u.lastname',
+                'u.email',
+                'u.curp',
+                'u.id_dependencia',
+                'u.id_programa',
+                'u.id_rol',
+                'u.id_semestre',
+                'd.nombre as dependencia',
+                'p.nombre as programa',
+                'r.nombre as rol',
+                's.nombre as semestre',
+                'u.fechacreacion as created_at'
+            )
+            ->join('cat_dependencias as d', 'd.id', 'u.id_dependencia')
+            ->join('cat_programas as p', 'p.id', 'u.id_programa')
+            ->join('cat_roles as r', 'r.id', 'u.id_rol')
+            ->join('cat_semestres as s', 's.id', 'u.id_semestre');
+    }
+
+    private function hasUsersView(): bool
+    {
+        try {
+            return Schema::hasTable('vw_usuarios_moodle');
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function create()
@@ -139,6 +180,55 @@ class ExternalUserController extends Controller
 
     return redirect()->route('dashboard')
         ->with('status', $deletedCount . ' usuario(s) eliminado(s) correctamente.');
+    }
+
+        public function registerConfigEdit()
+    {
+        $config = Cache::get('register_form_config', []);
+        return view('external_users.register-config', compact('config'));
+    }
+ 
+    public function registerConfigSave(Request $request)
+    {
+        $data = $request->validate([
+            'project_name'              => 'nullable|string|max:100',
+            'project_subtitle'          => 'nullable|string|max:150',
+            'fields'                    => 'nullable|array',
+            'fields.*.enabled'          => 'nullable|boolean',
+            'fields.*.label'            => 'nullable|string|max:80',
+            'fields.*.required'         => 'nullable|boolean',
+        ]);
+
+        // Los campos de contraseña nunca se tocan desde aquí
+        $allowedFields = ['name', 'surname', 'username', 'email', 'curp', 'dependencia', 'programa'];
+
+        $fieldsInput = $request->input('fields', []);
+
+        $config = [
+            'project_name'     => $data['project_name'] ?? 'Registro de Usuario',
+            'project_subtitle' => $data['project_subtitle'] ?? '',
+            'fields'           => [],
+        ];
+
+        foreach ($allowedFields as $key) {
+            $submitted = $fieldsInput[$key] ?? [];
+
+            // Interpretar la presencia/valor del checkbox como booleano
+            $enabled = !empty($submitted['enabled']) || ($request->has("fields.{$key}.enabled") && $submitted['enabled'] === '1');
+            $required = !empty($submitted['required']) || ($request->has("fields.{$key}.required") && $submitted['required'] === '1');
+
+            $config['fields'][$key] = [
+                'enabled'  => (bool) $enabled,
+                'label'    => isset($submitted['label']) ? trim($submitted['label']) : null,
+                'required' => (bool) $required,
+            ];
+        }
+
+        // Guardar en caché sin expiración (permanente hasta que se cambie)
+        Cache::forever('register_form_config', $config);
+
+        return redirect()->route('register-config.edit')
+            ->with('status', '✅ Configuración guardada correctamente.');
     }
 
     // ─── Importación CSV ─────────────────────────────────────────────────────

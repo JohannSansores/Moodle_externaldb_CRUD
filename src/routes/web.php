@@ -56,6 +56,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/dashboard', [ExternalUserController::class, 'index'])
         ->name('dashboard');
 
+    // ── Configuración del registro ──────────────────────────────
+    Route::get('/register-config',  [ExternalUserController::class, 'registerConfigEdit'])
+        ->name('register-config.edit');
+    Route::post('/register-config', [ExternalUserController::class, 'registerConfigSave'])
+        ->name('register-config.save');
+
     // IMPORTANTE: rutas específicas ANTES del resource para evitar
     // que {external_user} capture segmentos como "import" o "bulk-destroy"
     Route::get('/external-users/import/form',     [ExternalUserController::class, 'importForm'])
