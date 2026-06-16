@@ -83,25 +83,30 @@
                         @php
                             $activeFilters = collect([
                                 request('from_date'), request('to_date'),
-                                request('curp'), request('dependencia'),
-                                request('programa'), request('rol'), request('semestre'),
+                                request('search'), request('curp'),
+                                request('dependencia'), request('programa'),
+                                request('rol'), request('semestre'),
                             ])->filter()->count();
+
+                            // Validación de rango de fechas para mostrar aviso
+                            $fromDate = request('from_date');
+                            $toDate   = request('to_date');
+                            $dateError = ($fromDate && $toDate && $fromDate > $toDate);
                         @endphp
 
                         <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                            {{-- Cabecera del panel (siempre visible) --}}
+
+                            {{-- Cabecera siempre visible --}}
                             <button type="button" id="toggle-filters"
                                 class="w-full flex items-center justify-between px-5 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-left">
                                 <span class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
                                     🔎 Filtros
                                     @if($activeFilters > 0)
-                                        <span id="filter-badge" class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold">{{ $activeFilters }}</span>
-                                    @else
-                                        <span id="filter-badge" class="hidden inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold"></span>
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold">{{ $activeFilters }}</span>
                                     @endif
                                 </span>
                                 <span class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                                    <span>Total filtrado: <strong class="text-gray-800 dark:text-gray-100">{{ $usersNumber }}</strong></span>
+                                    <span>Total: <strong class="text-gray-800 dark:text-gray-100">{{ $usersNumber }}</strong> usuario(s)</span>
                                     <svg id="filter-chevron" class="w-4 h-4 transition-transform duration-300 {{ $activeFilters > 0 ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                                     </svg>
@@ -109,76 +114,132 @@
                             </button>
 
                             {{-- Panel colapsable --}}
-                            <div id="filters-panel" class="{{ $activeFilters > 0 ? '' : 'hidden' }} bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-5 py-4">
-                                <form action="{{ route('dashboard') }}" method="GET" class="grid gap-4 sm:grid-cols-3 lg:grid-cols-4 items-end w-full">
-                                    <div>
-                                        <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Desde</label>
-                                        <input type="date" name="from_date" id="from_date"
-                                               value="{{ request('from_date', $fromDate ?? '') }}"
-                                               class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                            <div id="filters-panel" class="{{ $activeFilters > 0 ? '' : 'hidden' }} bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-5 py-5">
+
+                                @if($dateError)
+                                    <div class="mb-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 px-4 py-2 text-sm text-red-700 dark:text-red-300">
+                                        ⚠️ La fecha <strong>Desde</strong> no puede ser mayor que la fecha <strong>Hasta</strong>.
+                                    </div>
+                                @endif
+
+                                <form action="{{ route('dashboard') }}" method="GET" id="filters-form">
+
+                                    {{-- Fila 1: Búsqueda general + CURP --}}
+                                    <div class="grid gap-4 sm:grid-cols-2 mb-4">
+                                        <div>
+                                            <label for="search" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Buscar por nombre / usuario / email</label>
+                                            <div class="relative">
+                                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                                </span>
+                                                <input type="text" name="search" id="search"
+                                                    placeholder="Juan, jperez, juan@mail.com…"
+                                                    value="{{ request('search') }}"
+                                                    class="pl-9 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label for="curp" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">CURP</label>
+                                            <input type="text" name="curp" id="curp"
+                                                placeholder="XXXX000000XXXXXX00"
+                                                value="{{ request('curp') }}"
+                                                maxlength="18"
+                                                style="text-transform:uppercase"
+                                                class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 font-mono">
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Hasta</label>
-                                        <input type="date" name="to_date" id="to_date"
-                                               value="{{ request('to_date', $toDate ?? '') }}"
-                                               class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                    {{-- Fila 2: Rango de fechas --}}
+                                    <div class="mb-4">
+                                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Rango de fecha de registro</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="date" name="from_date" id="from_date"
+                                                value="{{ request('from_date') }}"
+                                                max="{{ date('Y-m-d') }}"
+                                                onchange="validateDateRange()"
+                                                class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 {{ $dateError ? 'border-red-400' : '' }}">
+                                            <span class="text-gray-400 text-sm flex-shrink-0">→</span>
+                                            <input type="date" name="to_date" id="to_date"
+                                                value="{{ request('to_date') }}"
+                                                max="{{ date('Y-m-d') }}"
+                                                onchange="validateDateRange()"
+                                                class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 {{ $dateError ? 'border-red-400' : '' }}">
+                                            {{-- Accesos rápidos --}}
+                                            <div class="flex gap-1 flex-shrink-0">
+                                                <button type="button" onclick="setDateRange('today')" title="Hoy"
+                                                    class="px-2 py-1.5 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition">
+                                                    Hoy
+                                                </button>
+                                                <button type="button" onclick="setDateRange('week')" title="Última semana"
+                                                    class="px-2 py-1.5 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition">
+                                                    7d
+                                                </button>
+                                                <button type="button" onclick="setDateRange('month')" title="Último mes"
+                                                    class="px-2 py-1.5 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition">
+                                                    30d
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p id="date-range-error" class="text-xs text-red-500 mt-1 {{ $dateError ? '' : 'hidden' }}">
+                                            La fecha inicial no puede ser mayor que la final.
+                                        </p>
                                     </div>
 
-                                    <div>
-                                        <label for="curp" class="block text-sm font-medium text-gray-700 dark:text-gray-200">CURP</label>
-                                        <input type="text" name="curp" id="curp" placeholder="Buscar CURP"
-                                               value="{{ request('curp') }}"
-                                               class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 font-mono">
+                                    {{-- Fila 3: Selects de catálogos --}}
+                                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+                                        <div>
+                                            <label for="dependencia" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Dependencia</label>
+                                            <select id="dependencia" name="dependencia" class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                                <option value="">— Todas —</option>
+                                                @foreach($dependencias ?? [] as $id => $nombre)
+                                                    <option value="{{ $id }}" {{ request('dependencia') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="programa" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Programa</label>
+                                            <select id="programa" name="programa" class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                                <option value="">— Todos —</option>
+                                                @foreach($programas ?? [] as $id => $nombre)
+                                                    <option value="{{ $id }}" {{ request('programa') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="rol" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Rol</label>
+                                            <select id="rol" name="rol" class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                                <option value="">— Todos —</option>
+                                                @foreach($roles ?? [] as $id => $nombre)
+                                                    <option value="{{ $id }}" {{ request('rol') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="semestre" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Semestre</label>
+                                            <select id="semestre" name="semestre" class="block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                                <option value="">— Todos —</option>
+                                                @foreach($semestres ?? [] as $id => $nombre)
+                                                    <option value="{{ $id }}" {{ request('semestre') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <label for="dependencia" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Dependencia</label>
-                                        <select id="dependencia" name="dependencia" class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                                            <option value="">— Todos —</option>
-                                            @foreach($dependencias ?? [] as $id => $nombre)
-                                                <option value="{{ $id }}" {{ request('dependencia') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label for="programa" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Programa</label>
-                                        <select id="programa" name="programa" class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                                            <option value="">— Todos —</option>
-                                            @foreach($programas ?? [] as $id => $nombre)
-                                                <option value="{{ $id }}" {{ request('programa') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label for="rol" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Rol</label>
-                                        <select id="rol" name="rol" class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                                            <option value="">— Todos —</option>
-                                            @foreach($roles ?? [] as $id => $nombre)
-                                                <option value="{{ $id }}" {{ request('rol') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label for="semestre" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Semestre</label>
-                                        <select id="semestre" name="semestre" class="mt-1 block w-full rounded border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                                            <option value="">— Todos —</option>
-                                            @foreach($semestres ?? [] as $id => $nombre)
-                                                <option value="{{ $id }}" {{ request('semestre') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="sm:col-span-3 lg:col-span-4 flex flex-wrap gap-2 items-center mt-2">
-                                        <button type="submit" class="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto">
-                                            🔎 Filtrar
+                                    {{-- Botones --}}
+                                    <div class="flex flex-wrap gap-2 items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+                                        <button type="submit" id="btn-filtrar"
+                                            class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition shadow-sm">
+                                            🔎 Aplicar filtros
                                         </button>
-                                        <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center rounded bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 w-full sm:w-auto">
-                                            ♻️ Limpiar
+                                        <a href="{{ route('dashboard') }}"
+                                            class="inline-flex items-center gap-1.5 rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
+                                            ✖ Limpiar filtros
                                         </a>
+                                        @if($activeFilters > 0)
+                                            <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                                                {{ $activeFilters }} filtro(s) activo(s)
+                                            </span>
+                                        @endif
                                     </div>
                                 </form>
                             </div>

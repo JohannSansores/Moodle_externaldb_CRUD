@@ -36,14 +36,26 @@ class ExternalUserController extends Controller
 
         $catalogos = $this->catalogos();
 
-        $usersQuery = $this->buildUsersQuery()
-            ->when($fromDate, fn ($query, $fromDate) => $query->whereDate('created_at', '>=', $fromDate))
-            ->when($toDate, fn ($query, $toDate) => $query->whereDate('created_at', '<=', $toDate))
-            ->when($curp, fn ($query, $curp) => $query->where('curp', 'like', "%{$curp}%"))
-            ->when($dependencia, fn ($query, $dependencia) => $query->where('id_dependencia', $dependencia))
-            ->when($programa, fn ($query, $programa) => $query->where('id_programa', $programa))
-            ->when($rol, fn ($query, $rol) => $query->where('id_rol', $rol))
-            ->when($semestre, fn ($query, $semestre) => $query->where('id_semestre', $semestre));
+        // Aplicar filtros; usar la columna adecuada para la fecha según exista la vista
+        if ($this->hasUsersView()) {
+            $usersQuery = $this->buildUsersQuery()
+                ->when($fromDate, fn ($query, $fromDate) => $query->whereDate('created_at', '>=', $fromDate))
+                ->when($toDate, fn ($query, $toDate) => $query->whereDate('created_at', '<=', $toDate))
+                ->when($curp, fn ($query, $curp) => $query->where('curp', 'like', "%{$curp}%"))
+                ->when($dependencia, fn ($query, $dependencia) => $query->where('id_dependencia', $dependencia))
+                ->when($programa, fn ($query, $programa) => $query->where('id_programa', $programa))
+                ->when($rol, fn ($query, $rol) => $query->where('id_rol', $rol))
+                ->when($semestre, fn ($query, $semestre) => $query->where('id_semestre', $semestre));
+        } else {
+            $usersQuery = $this->buildUsersQuery()
+                ->when($fromDate, fn ($query, $fromDate) => $query->whereDate('u.fechacreacion', '>=', $fromDate))
+                ->when($toDate, fn ($query, $toDate) => $query->whereDate('u.fechacreacion', '<=', $toDate))
+                ->when($curp, fn ($query, $curp) => $query->where('curp', 'like', "%{$curp}%"))
+                ->when($dependencia, fn ($query, $dependencia) => $query->where('id_dependencia', $dependencia))
+                ->when($programa, fn ($query, $programa) => $query->where('id_programa', $programa))
+                ->when($rol, fn ($query, $rol) => $query->where('id_rol', $rol))
+                ->when($semestre, fn ($query, $semestre) => $query->where('id_semestre', $semestre));
+        }
 
         $users = $usersQuery->paginate(15)->withQueryString();
         $usersNumber = (clone $usersQuery)->count();

@@ -10,7 +10,7 @@ class moodle_usuarios extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
-    protected $table = 'usuarios_externos';
+    protected $table = 'moodle_usuarios';
 
     public $timestamps = false;
 

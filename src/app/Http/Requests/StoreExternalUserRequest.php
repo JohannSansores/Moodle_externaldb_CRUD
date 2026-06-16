@@ -14,12 +14,12 @@ class StoreExternalUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username'       => 'required|string|max:100|unique:usuarios_externos,username',
+            'username'       => 'required|string|max:100|unique:moodle_usuarios,username',
             'password'       => 'required|string|min:8',
             'firstname'      => 'required|string|max:100',
             'lastname'       => 'required|string|max:100',
-            'email'          => 'required|email|max:150|unique:usuarios_externos,email',
-            'curp'           => 'nullable|string|size:18|unique:usuarios_externos,curp|regex:/^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z]{2}$/',
+            'email'          => 'required|email|max:150|unique:moodle_usuarios,email',
+            'curp'           => 'nullable|string|size:18|unique:moodle_usuarios,curp|regex:/^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z]{2}$/',
             'id_dependencia' => 'required|integer|exists:cat_dependencias,id',
             'id_programa'    => 'required|integer|exists:cat_programas,id',
             'id_rol'         => 'required|integer|exists:cat_roles,id',
